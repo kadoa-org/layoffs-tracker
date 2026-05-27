@@ -4,7 +4,7 @@ import MonthlyTimeline from "../components/MonthlyTimeline";
 import NoticesTable from "../components/NoticesTable";
 import SectorChart from "../components/SectorChart";
 import StatRail from "../components/StatRail";
-import { fmtInt, Link, SectionHeader } from "../ui";
+import { Link, SectionHeader } from "../ui";
 
 // The map ships ~50KB gz of d3-geo + US geometry. Code-split it so the landing
 // paints from the 7KB overview.json first and the map streams in after.
@@ -61,9 +61,8 @@ export default function OverviewPage() {
   const { stats, timeline, topLayoffs, leaderboardTotals, recent, stateStats, mapWindow, sectors, sectorsClassified } =
     data;
   const headline = "Monitor every US layoff disclosed under the WARN Act";
-  const subline = `${fmtInt(stats?.totalNotices)} mass-layoff and plant-closure notices from ${fmtInt(
-    stats?.totalCompanies,
-  )} employers, pulled directly from state labor departments. The federal WARN Act requires 60 days' notice for layoffs of 50+ workers, so each notice is a real, named layoff that's about to happen.`;
+  const subline =
+    "The federal WARN Act requires employers to give 60 days' notice before a mass layoff or plant closing of 50+ workers. This is the public record of those filings, pulled directly from state labor departments — each one a real, named layoff that's about to happen.";
 
   return (
     <>

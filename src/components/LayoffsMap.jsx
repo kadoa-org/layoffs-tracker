@@ -133,7 +133,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
   return (
     <div ref={onResize} className="border border-stroke rounded-md bg-panel p-3 sm:p-4">
       <div className="mb-2 sm:mb-3">
-        <div className="text-small font-medium text-ink">Where WARN layoffs are hitting hardest</div>
+        <div className="text-small font-medium text-ink">Layoffs by state</div>
         {/* Single-line, never wraps — a fixed line that doesn't push into the map. */}
         <div className="text-mini text-ink_muted truncate">
           {focused && focused.code ? (

@@ -5,17 +5,30 @@ import { navigate } from "./router";
 export const TABLE_HEADER_CLS = "text-mini font-medium text-ink_muted";
 export const TABLE_ZEBRA_CLS = "[&>*:nth-child(even)]:bg-muted/30";
 
+// Sort state is a column key, prefixed with "-" for descending. Right-aligned
+// (numeric/date) columns sort descending on first click; text columns ascending.
 export function SortHeader({ label, sortKey, sort, setSort, align = "left" }) {
-  const active = sort === sortKey;
+  const active = sort === sortKey || sort === `-${sortKey}`;
+  const desc = sort === `-${sortKey}`;
   const justify = align === "right" ? "justify-end" : align === "center" ? "justify-center" : "justify-start";
+  const onClick = () => {
+    if (!active) setSort(align === "right" ? `-${sortKey}` : sortKey);
+    else setSort(desc ? sortKey : `-${sortKey}`);
+  };
   return (
     <button
-      onClick={() => setSort(sortKey)}
+      onClick={onClick}
       className={`inline-flex items-center gap-1 cursor-pointer hover:text-ink tabular-nums text-${align} ${justify} ${active ? "text-ink" : ""}`}
     >
       <span>{label}</span>
       {active ? (
-        <svg width="10" height="10" viewBox="0 0 10 10" className="text-ink shrink-0" aria-hidden="true">
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          className={`text-ink shrink-0 ${desc ? "" : "rotate-180"}`}
+          aria-hidden="true"
+        >
           <path d="M2 4 L5 7 L8 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       ) : (
@@ -27,6 +40,55 @@ export function SortHeader({ label, sortKey, sort, setSort, align = "left" }) {
     </button>
   );
 }
+
+// Official state WARN disclosure pages — the source each notice links back to.
+export const STATE_WARN_URL = {
+  CA: "https://edd.ca.gov/en/jobs_and_training/Layoff_Services_WARN/",
+  TX: "https://www.twc.texas.gov/data-reports/warn-notice",
+  FL: "https://reactwarn.floridajobs.org/warnlist/reports",
+  NY: "https://dol.ny.gov/warn-dashboard",
+  NJ: "https://www.nj.gov/labor/employer-services/warn/",
+  MA: "https://www.mass.gov/info-details/worker-adjustment-and-retraining-notification-act-warn-layoff-and-closure-updates",
+  VA: "https://www.vec.virginia.gov/warn-notices",
+  OR: "https://ccwd.hecc.oregon.gov/layoff/warn",
+  IA: "https://workforce.iowa.gov/employers/resources/warn",
+  MT: "https://wsd.dli.mt.gov/wioa/related-links/warn-notice-page",
+  RI: "https://dlt.ri.gov/employers/worker-adjustment-and-retraining-notification-warn",
+  KY: "https://kcc.ky.gov/employer/Pages/Business-Downsizing-Assistance---WARN.aspx",
+  AL: "https://workforce.alabama.gov/warn-list/",
+  MD: "https://labor.maryland.gov/employment/warn.shtml",
+  ID: "https://www.labor.idaho.gov/businesses/layoff-assistance/",
+  LA: "https://www2.laworks.net/Downloads/Downloads_WFD.asp",
+  NM: "https://www.dws.state.nm.us/Rapid-Response",
+  NV: "https://detr.nv.gov/Page/WARN",
+  SC: "https://scworks.org/employer/employer-programs/worker-adjustment-and-retraining-notification-warn-act",
+  IL: "https://dceo.illinois.gov/workforcedevelopment/warn.html",
+  IN: "https://www.in.gov/dwd/warn-notices/current-warn-notices/",
+  MI: "https://www.michigan.gov/leo/bureaus-agencies/wd/data-public-notices/warn-notices",
+  MN: "https://mn.gov/deed/business/layoff-resources/warn-archive/index.jsp",
+  OH: "https://jfs.ohio.gov/warn/index.stm",
+  PA: "https://www.pa.gov/agencies/dli/programs-services/workforce-development-home/warn-requirements/warn-notices",
+  CO: "https://cdle.colorado.gov/employers/layoff-separations/layoff-warn-list",
+  CT: "https://portal.ct.gov/dol/divisions/rapid-response/warn",
+  AZ: "https://www.azjobconnection.gov/warn_info",
+  DE: "https://joblink.delaware.gov/warn_info",
+  KS: "https://www.kansasworks.com/warn_info",
+  ME: "https://joblink.maine.gov/warn_info",
+  VT: "https://www.vermontjoblink.com/warn_info",
+  MO: "https://jobs.mo.gov/warn/2025",
+  AK: "https://jobs.alaska.gov/rr/WARN_notices.htm",
+  DC: "https://does.dc.gov/page/industry-closings-and-layoffs-warn-notifications-2025",
+  NC: "https://www.commerce.nc.gov/data-tools-reports/labor-market-data-tools/workforce-warn-reports",
+  WA: "https://esd.wa.gov/employer-requirements/layoffs-and-employee-notifications/worker-adjustment-and-retraining-notification-warn-layoff-and-closure-database",
+  NE: "https://dol.nebraska.gov/ReemploymentServices/LayoffServices/LayoffsAndDownsizingWARN",
+  OK: "https://www.employoklahoma.gov/Participants/s/warnnotices",
+  SD: "https://dlr.sd.gov/workforce_services/businesses/warn_notices.aspx",
+  TN: "https://www.tn.gov/workforce/employers/staffing-redirect/layoffs---unemployment/warn-notices.html",
+  UT: "https://jobs.utah.gov/employer/business/warnnotices.html",
+  WI: "https://dwd.wisconsin.gov/dislocatedworker/warn/",
+  WV: "https://workforcewv.org/job-seeker/layoffs-downsizing/warn-listing/",
+  ND: "https://www.jobsnd.com/unemployment-business-tax/employers-guide/employer-responsibilities-employee-separations",
+};
 
 export function fmtInt(n) {
   if (!n && n !== 0) return "--";

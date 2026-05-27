@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import NoticesTable from "../components/NoticesTable";
 import { Card, companySlug, fmtCompact, fmtDate, fmtInt, Link, SectionHeader, StatGrid } from "../ui";
 import { query } from "../useDatabase";
 
 export default function CompanyPage({ slug, db }) {
+  const [sort, setSort] = useState("-received_date");
   // Pull every notice that hashes to this slug. We can't index on the slug
   // directly so we filter by canonical company name patterns.
   // Strategy: candidate-match by name fragment, then filter by canonical slug
@@ -71,7 +72,7 @@ export default function CompanyPage({ slug, db }) {
         />
       </Card>
       <SectionHeader title="Filing history" />
-      <NoticesTable notices={sorted} sort="received_date" setSort={() => {}} />
+      <NoticesTable notices={sorted} sort={sort} setSort={setSort} />
     </div>
   );
 }

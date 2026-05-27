@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import NoticesTable from "../components/NoticesTable";
 import { Card, fmtCompact, fmtDate, fmtInt, Link, SectionHeader, StatGrid } from "../ui";
 import { query, queryOne } from "../useDatabase";
 
 export default function StatePage({ code, db }) {
+  const [sort, setSort] = useState("-received_date");
   // Pull pre-aggregated totals from the states table (43 rows) and only the
   // first 500 filings for display.
   const meta = useMemo(
@@ -59,7 +60,7 @@ export default function StatePage({ code, db }) {
         />
       </Card>
       <SectionHeader title="Filings" />
-      <NoticesTable notices={sorted} sort="received_date" setSort={() => {}} limit={500} />
+      <NoticesTable notices={sorted} sort={sort} setSort={setSort} limit={500} />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import statesTopo from "us-atlas/states-10m.json";
 import { navigate } from "../router";
-import { fmtCompact, fmtInt } from "../ui";
+import { fmtInt } from "../ui";
 
 // Proportional-symbol map of WARN layoffs by state. Bubbles are area-scaled to
 // workers affected in the trailing 12 months. Three coverage states are shown:
@@ -74,17 +74,6 @@ const FIPS_TO_USPS = {
   56: "WY",
 };
 
-// Nice round legend values derived from the data max.
-function legendValues(max) {
-  if (max <= 0) return [];
-  const top = niceRound(max);
-  return [top, Math.round(top / 3), Math.round(top / 10)].filter((v) => v > 0);
-}
-function niceRound(v) {
-  const mag = 10 ** Math.floor(Math.log10(v));
-  return Math.round(v / mag) * mag;
-}
-
 export default function LayoffsMap({ stateStats, window: win }) {
   const [hover, setHover] = useState(null);
   const containerRef = useRef(null);
@@ -136,8 +125,6 @@ export default function LayoffsMap({ stateStats, window: win }) {
   // Draw small bubbles last so they sit on top of large ones.
   const bubbles = records.filter((r) => r.r > 0 && Number.isFinite(r.cx)).sort((a, b) => b.r - a.r);
 
-  const legend = legendValues(niceRound(max12));
-  const scale = width / WIDTH;
   const focused = hover ? records.find((r) => r.code === hover) : null;
   // On phones the 2-letter labels become unreadable noise over tiny bubbles —
   // hide them and let tap-through to the state page carry the detail.
@@ -174,7 +161,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         width="100%"
-        className="block -mx-3 mt-1 w-[calc(100%+1.5rem)] max-w-none sm:mx-0 sm:w-full"
+        className="mt-1 block -mx-3 w-[calc(100%+1.5rem)] max-w-none sm:mx-auto sm:w-full sm:max-w-[840px]"
         role="img"
         aria-label="US map of WARN Act layoffs by state, sized by workers affected in the last 12 months"
       >
@@ -236,47 +223,12 @@ export default function LayoffsMap({ stateStats, window: win }) {
               </text>
             ) : null,
           )}
-
-        {/* Size legend — nested circles, bottom-left. Desktop only; at phone
-            scale the nested-circle text is illegible, so mobile gets an HTML
-            caption below the map instead. */}
-        {!isMobile &&
-          legend.length > 0 &&
-          (() => {
-            const lx = 70;
-            const baseY = HEIGHT - 30;
-            const rTop = radius(legend[0]);
-            return (
-              <g>
-                {legend.map((v, i) => {
-                  const rr = radius(v);
-                  return (
-                    <g key={i}>
-                      <circle cx={lx} cy={baseY - rr} r={rr} fill="none" stroke="lch(55% 0 282)" strokeWidth="1" />
-                      <text
-                        x={lx + rTop + 8}
-                        y={baseY - 2 * rr + 4}
-                        fontSize="10"
-                        fill="lch(40% 0 282)"
-                        className="tabular-nums"
-                      >
-                        {fmtCompact(v)}
-                      </text>
-                    </g>
-                  );
-                })}
-                <text x={lx} y={baseY + 16} textAnchor="middle" fontSize="10" fill="lch(40% 0 282)">
-                  Affected workers
-                </text>
-              </g>
-            );
-          })()}
       </svg>
 
-      {/* Mobile legend caption (the in-SVG nested circles are hidden on phones). */}
-      <p className="sm:hidden text-mini text-ink_muted mt-2">Circle size = workers affected, last 12 months.</p>
-      <p className="text-mini text-ink_muted mt-1 sm:mt-2 leading-relaxed">
-        Hatched states don't publicly disclose WARN notices.
+      {/* HTML legend caption — replaces the in-SVG nested circles, which collided
+          with the Alaska inset bottom-left. */}
+      <p className="text-mini text-ink_muted mt-2">
+        Circle size = workers affected, last 12 months. Hatched states don't publicly disclose WARN notices.
       </p>
     </div>
   );

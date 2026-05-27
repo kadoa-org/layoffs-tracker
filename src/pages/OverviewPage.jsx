@@ -116,7 +116,7 @@ export default function OverviewPage() {
             </Link>
           }
         />
-        <NoticesTable notices={recent} sort="received_date" setSort={() => {}} />
+        <NoticesTable notices={recent} sortable={false} />
       </section>
     </>
   );

@@ -70,23 +70,32 @@ function SourceLink({ state }) {
   );
 }
 
-export default function NoticesTable({ notices, sort, setSort, limit }) {
-  const sorted = useMemo(() => sortNotices(notices, sort), [notices, sort]);
+// `sortable` defaults true (Notices / Company / State pages). The Overview
+// "Latest filings" preview passes sortable={false} — it's a fixed recent slice,
+// so the headers render as plain labels instead of dead sort buttons.
+export default function NoticesTable({ notices, sort, setSort, limit, sortable = true }) {
+  const sorted = useMemo(() => (sortable ? sortNotices(notices, sort) : notices), [notices, sort, sortable]);
   const rows = limit ? sorted.slice(0, limit) : sorted;
+  const Th = ({ label, sortKey, align }) =>
+    sortable ? (
+      <SortHeader label={label} sortKey={sortKey} sort={sort} setSort={setSort} align={align} />
+    ) : (
+      <span className={align === "right" ? "block text-right" : ""}>{label}</span>
+    );
   return (
     <Card className="overflow-hidden">
       <div className={`${COLS} ${TABLE_HEADER_CLS} h-9 items-center border-b border-stroke`}>
-        <SortHeader label="Company" sortKey="company" sort={sort} setSort={setSort} />
+        <Th label="Company" sortKey="company" />
         <span className="hidden sm:block">
-          <SortHeader label="Type" sortKey="event_type" sort={sort} setSort={setSort} />
+          <Th label="Type" sortKey="event_type" />
         </span>
-        <SortHeader label="State" sortKey="state" sort={sort} setSort={setSort} />
+        <Th label="State" sortKey="state" />
         <span className="hidden sm:block">
-          <SortHeader label="City" sortKey="city" sort={sort} setSort={setSort} />
+          <Th label="City" sortKey="city" />
         </span>
-        <SortHeader label="Workers" sortKey="num_affected" sort={sort} setSort={setSort} align="right" />
+        <Th label="Workers" sortKey="num_affected" align="right" />
         <span className="hidden sm:block">
-          <SortHeader label="Effective" sortKey="effective_date" sort={sort} setSort={setSort} align="right" />
+          <Th label="Effective" sortKey="effective_date" align="right" />
         </span>
         <span className="hidden sm:block text-right">Source</span>
       </div>

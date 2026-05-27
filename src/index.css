@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Linear.app parity */
+:root {
+  color-scheme: light;
+  font-size: 18px;                    /* Linear's html root */
+  --lg-color-text: #23252a;
+  --lg-color-text-secondary: lch(19.788% 1.25 282);
+  --lg-color-text-tertiary: lch(39.576% 1.25 282);
+  --lg-color-bg: lch(98.94% 0.5 282);
+  --lg-color-bg-secondary: lch(93.44% 0.5 282);
+  --lg-color-bg-tertiary: lch(91.94% 0.5 282);
+  --lg-color-border: lch(89.49% 0 282);
+}
+
+html, body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--lg-color-bg);
+  color: var(--lg-color-text);
+  font-size: 0.9375rem;               /* 16.875px body base, Linear's --font-size-regular */
+  font-weight: 450;                   /* Linear body weight */
+  font-feature-settings: "cv11", "ss01";
+  line-height: 1.5;
+}
+
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.font-mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: lch(85% 0 282);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: lch(78% 0 282);
+  background-clip: content-box;
+}
+
+::selection { background: rgba(94, 106, 210, 0.15); }
+
+/* Focus ring matching Linear */
+*:focus-visible {
+  outline: 2px solid rgba(94, 106, 210, 0.35);
+  outline-offset: 1px;
+}

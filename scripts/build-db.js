@@ -392,7 +392,7 @@ async function main() {
     .exec(
       `SELECT id, state, company, city, num_affected, received_date, effective_date, event_type
        FROM notices WHERE received_date IS NOT NULL
-       ORDER BY received_date DESC LIMIT 15`,
+       ORDER BY received_date DESC, effective_date DESC NULLS LAST, company ASC LIMIT 15`,
     )[0]
     .values.map(([id, state, company, city, num_affected, received_date, effective_date, event_type]) => ({
       id,

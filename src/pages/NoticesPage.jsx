@@ -21,13 +21,16 @@ const SINCE_DAYS = {
   "12m": 365,
 };
 
+// Standard convention: "-key" is descending, plain "key" is ascending. The
+// SortHeader's first-click rules match this (right-aligned numeric/date cols
+// start at "-key" so the user sees biggest/newest first).
 const SORT_MAP = {
-  received_date: "received_date DESC NULLS LAST",
-  "-received_date": "received_date ASC NULLS LAST",
-  effective_date: "effective_date DESC NULLS LAST",
-  "-effective_date": "effective_date ASC NULLS LAST",
-  num_affected: "num_affected DESC NULLS LAST",
-  "-num_affected": "num_affected ASC NULLS LAST",
+  received_date: "received_date ASC NULLS LAST",
+  "-received_date": "received_date DESC NULLS LAST",
+  effective_date: "effective_date ASC NULLS LAST",
+  "-effective_date": "effective_date DESC NULLS LAST",
+  num_affected: "num_affected ASC NULLS LAST",
+  "-num_affected": "num_affected DESC NULLS LAST",
   company: "company COLLATE NOCASE ASC",
   "-company": "company COLLATE NOCASE DESC",
   state: "state ASC",
@@ -86,7 +89,13 @@ function toFilters(qs) {
 
 export default function NoticesPage({ db }) {
   const [qs, setQs] = useQueryState(FILTER_KEYS, QUERY_DEFAULTS);
-  const [sort, setSort] = useState("received_date");
+  // Honor ?sort= from inbound links (e.g. clicking a header on the Overview
+  // preview deep-links here with that sort already applied). Whitelist via
+  // SORT_MAP so a hostile URL can't smuggle anything into the ORDER BY.
+  const [sort, setSort] = useState(() => {
+    const incoming = new URLSearchParams(window.location.search).get("sort");
+    return incoming && SORT_MAP[incoming] ? incoming : "-received_date";
+  });
   const filters = toFilters(qs);
 
   const setFilters = (updater) => {

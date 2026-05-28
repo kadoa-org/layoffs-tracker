@@ -4,6 +4,7 @@ import MonthlyTimeline from "../components/MonthlyTimeline";
 import NoticesTable from "../components/NoticesTable";
 import SectorChart from "../components/SectorChart";
 import StatRail from "../components/StatRail";
+import { navigate } from "../router";
 import { Link, SectionHeader } from "../ui";
 
 // The map ships ~50KB gz of d3-geo + US geometry. Code-split it so the landing
@@ -116,7 +117,14 @@ export default function OverviewPage() {
             </Link>
           }
         />
-        <NoticesTable notices={recent} sortable={false} />
+        {/* Preview is a fixed 15-row slice; in-place sorting wouldn't help.
+            Make the headers feel interactive by deep-linking to /notices
+            with the requested sort applied. */}
+        <NoticesTable
+          notices={recent}
+          sort={null}
+          setSort={(key) => navigate(`/notices?sort=${encodeURIComponent(key)}`)}
+        />
       </section>
     </>
   );

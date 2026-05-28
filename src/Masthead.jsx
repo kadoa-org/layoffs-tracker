@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import SearchPalette from "./components/SearchPalette";
 import { useRoute } from "./router";
 import { Link } from "./ui";
 
@@ -10,8 +11,26 @@ const TABS = [
   { to: "/about", label: "About", match: "about" },
 ];
 
+// Mac vs Windows: show ⌘K on Mac, Ctrl+K elsewhere. SSR-safe default to ⌘K.
+const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+
 export default function Masthead() {
   const route = useRoute();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Global ⌘K / Ctrl+K. Skip while another modal is open (palette handles its
+  // own Esc), and skip when the user is typing in a regular input.
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const activeTab = (() => {
     if (route.name === "company") return "companies";
     if (route.name === "state") return "states";
@@ -55,6 +74,30 @@ export default function Masthead() {
           })}
         </nav>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search companies and states"
+            className="hidden sm:flex items-center gap-2 h-7 pl-2 pr-1 rounded-md border border-stroke bg-panel text-mini text-ink_muted hover:text-ink hover:border-ink_faint transition-colors"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+            </svg>
+            <span className="hidden md:inline">Search...</span>
+            <kbd className="hidden md:inline-flex items-center gap-0.5 bg-muted border border-stroke rounded px-1 text-[10px] text-ink_muted">
+              {isMac ? "⌘" : "Ctrl"} K
+            </kbd>
+          </button>
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+            className="sm:hidden flex items-center justify-center w-7 h-7 rounded-md border border-stroke bg-panel text-ink_muted"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+            </svg>
+          </button>
           <a
             href="https://github.com/kadoa-org/layoffs-tracker"
             target="_blank"
@@ -69,6 +112,7 @@ export default function Masthead() {
           </a>
         </div>
       </div>
+      <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }

@@ -79,6 +79,28 @@ export default function OverviewPage() {
         </div>
       </section>
 
+      {/* Latest filings moved here from the bottom: team feedback said
+          search/sort needs to be discoverable up front. The map still acts as
+          the hero visual immediately below. */}
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+        <SectionHeader
+          title="Latest filings"
+          right={
+            <Link to="/notices" className="text-small no-underline hover:no-underline">
+              See all →
+            </Link>
+          }
+        />
+        {/* Preview is a fixed 15-row slice; in-place sorting wouldn't help.
+            Make the headers feel interactive by deep-linking to /notices
+            with the requested sort applied. */}
+        <NoticesTable
+          notices={recent}
+          sort={null}
+          setSort={(key) => navigate(`/notices?sort=${encodeURIComponent(key)}`)}
+        />
+      </section>
+
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
         <Suspense fallback={<div className="border border-stroke rounded-md bg-panel h-[520px] animate-pulse" />}>
           <LayoffsMap stateStats={stateStats} window={mapWindow} />
@@ -102,30 +124,11 @@ export default function OverviewPage() {
       </section>
 
       {sectors && sectors.length > 0 && (
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-20">
           <SectionHeader title="Layoffs by sector" />
           <SectorChart sectors={sectors} classified={sectorsClassified} />
         </section>
       )}
-
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-20">
-        <SectionHeader
-          title="Latest filings"
-          right={
-            <Link to="/notices" className="text-small no-underline hover:no-underline">
-              See all →
-            </Link>
-          }
-        />
-        {/* Preview is a fixed 15-row slice; in-place sorting wouldn't help.
-            Make the headers feel interactive by deep-linking to /notices
-            with the requested sort applied. */}
-        <NoticesTable
-          notices={recent}
-          sort={null}
-          setSort={(key) => navigate(`/notices?sort=${encodeURIComponent(key)}`)}
-        />
-      </section>
     </>
   );
 }

@@ -73,6 +73,20 @@ function SourceLink({ state }) {
 // `sortable` defaults true (Notices / Company / State pages). The Overview
 // "Latest filings" preview passes sortable={false} — it's a fixed recent slice,
 // so the headers render as plain labels instead of dead sort buttons.
+// Mobile sort options: Effective + City columns are hidden below sm:, so the
+// column headers can't reach them on phones. This dropdown gives a way to
+// sort by Effective date and any other field on mobile.
+const MOBILE_SORT_OPTIONS = [
+  { value: "-received_date", label: "Most recently filed" },
+  { value: "received_date", label: "Earliest filed" },
+  { value: "-num_affected", label: "Most workers" },
+  { value: "num_affected", label: "Fewest workers" },
+  { value: "-effective_date", label: "Soonest effective" },
+  { value: "effective_date", label: "Latest effective" },
+  { value: "company", label: "Company A-Z" },
+  { value: "-company", label: "Company Z-A" },
+];
+
 export default function NoticesTable({ notices, sort, setSort, limit, sortable = true }) {
   const sorted = useMemo(() => (sortable ? sortNotices(notices, sort) : notices), [notices, sort, sortable]);
   const rows = limit ? sorted.slice(0, limit) : sorted;
@@ -84,6 +98,25 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
     );
   return (
     <Card className="overflow-hidden">
+      {sortable && (
+        <div className="sm:hidden flex items-center gap-2 px-4 h-10 border-b border-stroke text-mini text-ink_muted">
+          <label htmlFor="mobile-sort" className="shrink-0">
+            Sort:
+          </label>
+          <select
+            id="mobile-sort"
+            value={sort ?? "-received_date"}
+            onChange={(e) => setSort?.(e.target.value)}
+            className="flex-1 bg-transparent border-none outline-none text-ink text-small py-1 -ml-1"
+          >
+            {MOBILE_SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className={`${COLS} ${TABLE_HEADER_CLS} h-9 items-center border-b border-stroke`}>
         <Th label="Company" sortKey="company" />
         <span className="hidden sm:block">

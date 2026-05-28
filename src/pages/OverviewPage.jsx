@@ -62,7 +62,7 @@ export default function OverviewPage() {
     data;
   const headline = "Monitor every US layoff disclosed under the WARN Act";
   const subline =
-    "The federal WARN Act requires employers with 100+ workers to give 60 days notice before mass layoffs or plant closings (different thresholds by state, but roughly: 50+ jobs lost). But the notices are scattered across 50 state websites, each with its own format, broken links, and no API.";
+    "The federal WARN Act requires employers with 100+ workers to give 60 days notice before mass layoffs or plant closings (different thresholds by state, but roughly: 50+ jobs lost). This site is a fully open-source aggregator that makes the data easy to access.";
 
   return (
     <>

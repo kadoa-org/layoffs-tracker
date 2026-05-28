@@ -79,9 +79,18 @@ export default function OverviewPage() {
         </div>
       </section>
 
-      {/* Latest filings moved here from the bottom: team feedback said
-          search/sort needs to be discoverable up front. The map still acts as
-          the hero visual immediately below. */}
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+        <Suspense fallback={<div className="border border-stroke rounded-md bg-panel h-[520px] animate-pulse" />}>
+          <LayoffsMap stateStats={stateStats} window={mapWindow} />
+        </Suspense>
+      </section>
+
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+        <MonthlyTimeline timeline={timeline} />
+      </section>
+
+      {/* Latest filings sits below the map + timeline so the visual story
+          (where + when) lands first, and the interactive table follows. */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
         <SectionHeader
           title="Latest filings"
@@ -99,16 +108,6 @@ export default function OverviewPage() {
           sort={null}
           setSort={(key) => navigate(`/notices?sort=${encodeURIComponent(key)}`)}
         />
-      </section>
-
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
-        <Suspense fallback={<div className="border border-stroke rounded-md bg-panel h-[520px] animate-pulse" />}>
-          <LayoffsMap stateStats={stateStats} window={mapWindow} />
-        </Suspense>
-      </section>
-
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
-        <MonthlyTimeline timeline={timeline} />
       </section>
 
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">

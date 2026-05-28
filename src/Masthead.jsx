@@ -76,26 +76,49 @@ export default function Masthead() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSearchOpen(true)}
-            aria-label="Search companies and states"
-            className="hidden sm:flex items-center gap-2 h-7 pl-2 pr-1 rounded-md border border-stroke bg-panel text-mini text-ink_muted hover:text-ink hover:border-ink_faint transition-colors"
+            aria-label="Search"
+            className="hidden sm:flex items-center gap-2 h-7 pl-2 pr-1.5 rounded-md border border-stroke text-ink_muted hover:text-ink hover:border-ink_faint text-small bg-panel"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
-            <span className="hidden md:inline">Search...</span>
-            <kbd className="hidden md:inline-flex items-center gap-0.5 bg-muted border border-stroke rounded px-1 text-[10px] text-ink_muted">
-              {isMac ? "⌘" : "Ctrl"} K
-            </kbd>
+            <span className="text-ink_muted">Search...</span>
+            <span className="hidden lg:inline-flex ml-4 items-center gap-[2px] text-mini text-ink_faint">
+              <kbd className="px-1 py-[1px] rounded border border-stroke bg-muted font-mono text-[11px] leading-none">
+                {isMac ? "⌘" : "Ctrl"}
+              </kbd>
+              <kbd className="px-1 py-[1px] rounded border border-stroke bg-muted font-mono text-[11px] leading-none">
+                K
+              </kbd>
+            </span>
           </button>
           <button
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             className="sm:hidden flex items-center justify-center w-7 h-7 rounded-md border border-stroke bg-panel text-ink_muted"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
           </button>
           <a

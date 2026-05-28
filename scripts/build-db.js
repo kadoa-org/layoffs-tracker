@@ -59,24 +59,33 @@ const NAICS_SECTORS = {
 
 // Keyword fallback for industry strings that carry no NAICS code (e.g. "Retail
 // Trade", "Call Center"). Ordered: first match wins.
+//
+// Order matters. Professional & Technical and Administrative & Waste sit
+// BEFORE Information so "Technical Services" and "Remediation Services" land
+// in the right bucket. Information itself is word-boundaried — bare /tech/
+// caught "Technical" and bare /media/ caught "remediation", which silently
+// inflated Information by ~3x and gutted the other two sectors.
 const NAICS_KEYWORDS = [
   [/manufactur|pharmaceutical|factory|plant/, "Manufacturing"],
   [/wholesale/, "Wholesale Trade"],
-  [/retail|store/, "Retail Trade"],
+  [/\bretail\b|\bstore\b/, "Retail Trade"],
   [/health|hospital|medical|\bcare\b|nursing|clinic/, "Health Care & Social Assistance"],
   [/transport|warehous|logistic|trucking|airline|aviation/, "Transportation & Warehousing"],
   [/construction|contractor/, "Construction"],
   [/financ|insurance|\bbank|credit|invest/, "Finance & Insurance"],
-  [/information|software|\btech|\bdata\b|telecom|media|publish|internet/, "Information"],
-  [/professional|scientific|engineering|consulting|legal|account|research/, "Professional & Technical Services"],
+  [
+    /professional|scientific|\btechnical\b|engineering|consulting|legal|account|research/,
+    "Professional & Technical Services",
+  ],
+  [/administrativ|\bwaste\b|remediation|call center|staffing|janitorial|security/, "Administrative & Waste Services"],
+  [/\binformation\b|software|\btelecom|\binternet\b|publish|broadcast|\bnewspaper\b|\bIT\b|data center/, "Information"],
   [/accommodation|food|restaurant|hotel|hospitality|catering/, "Accommodation & Food Services"],
   [/education|school|university|college|academ/, "Educational Services"],
-  [/administrative|support|waste|call center|staffing|security/, "Administrative & Waste Services"],
   [/real estate|rental|leasing/, "Real Estate & Rental"],
   [/arts|entertainment|recreation|casino|gaming|fitness/, "Arts, Entertainment & Recreation"],
   [/agricultur|forestry|fishing|farm/, "Agriculture, Forestry & Fishing"],
-  [/mining|quarry|\boil\b|\bgas\b|petroleum/, "Mining, Quarrying, Oil & Gas"],
-  [/utilit|electric|power|water/, "Utilities"],
+  [/mining|quarry|\boil\b|natural gas|petroleum/, "Mining, Quarrying, Oil & Gas"],
+  [/utilit|electric power|power generation|\bwater supply\b/, "Utilities"],
   [/management of companies|headquarters|holding/, "Management of Companies"],
   [/public admin|government|municipal/, "Public Administration"],
 ];

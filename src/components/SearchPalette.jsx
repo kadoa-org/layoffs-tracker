@@ -185,7 +185,7 @@ export default function SearchPalette({ open, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4">
-      <div className="absolute inset-0 bg-ink/10 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-ink/20 backdrop-blur-md" onClick={onClose} />
       <div className="relative w-full max-w-[560px] bg-panel border border-stroke rounded-md shadow-hover overflow-hidden">
         <div className="flex items-center gap-2 px-3 border-b border-stroke h-11">
           <svg

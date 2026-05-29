@@ -3,34 +3,28 @@ import { Card } from "../ui";
 
 const STEPS = [
   {
-    title: "The WARN Act",
-    summary: "Why this data exists",
+    title: "Why this data exists",
     body: `The Worker Adjustment and Retraining Notification Act of 1988 requires employers with 100 or more employees to give 60 days' advance notice of plant closings and mass layoffs. Notices are filed with each state's labor or workforce agency, creating a public record of large layoffs before they happen.`,
   },
   {
     title: "What triggers a notice",
-    summary: "When 60 days' notice is required",
-    body: `A plant closing that puts 50+ workers out of a job at a single site, or a mass layoff of 500+ workers — or 50–499 when they make up at least a third of the site's workforce. Notice goes to the affected workers, their representatives, and state and local officials.`,
+    body: `A plant closing that puts 50+ workers out of a job at a single site, or a mass layoff of 500+ workers (or 50 to 499 when they make up at least a third of the site's workforce). Notice goes to the affected workers, their representatives, and state and local officials.`,
   },
   {
     title: "Layoff vs. closure",
-    summary: "The event types",
     body: `Each notice is a mass layoff, a plant closure, a relocation, or an amendment to an earlier filing. We normalize the wording every state uses into those few buckets so they can be compared and filtered consistently.`,
   },
   {
-    title: "Coverage varies by state",
-    summary: "Why a few states are missing",
-    body: `There is no national real-time WARN database — every state publishes its own list, in its own format and on its own cadence. A few don't make notices public at all: Arkansas keeps them confidential by law (A.C.A. §11-10-314), and Georgia, Mississippi, New Hampshire, Wyoming, and Hawaii publish no usable public list.`,
+    title: "Why a few states are missing",
+    body: `There is no national real-time WARN database. Every state publishes its own list, in its own format and on its own cadence. A few don't make notices public at all: Arkansas keeps them confidential by law (A.C.A. §11-10-314), and Georgia, Mississippi, New Hampshire, Wyoming, and Hawaii publish no usable public list.`,
   },
   {
-    title: "What it under-counts",
-    summary: "The limits of WARN data",
-    body: `WARN is a floor, not a full count of US job loss. Employers under 100 people aren't covered, layoffs that stay under the size thresholds don't trigger a notice, and the penalty for not filing is modest — so some layoffs never appear. Worker counts reflect what employers self-reported on the form.`,
+    title: "Why a layoff can be missing",
+    body: `WARN is a floor, not a full count of US job loss. It only sees concentrated, involuntary cuts at a single location, so a layoff can be real and still never trigger a notice. Cuts spread thin across many offices, remote teams, or sites stay under the per-location threshold. Voluntary buyouts, early retirements, and attrition aren't covered at all. And because notices are filed before the cuts happen, the announced headcount and the final number often differ. The biggest gaps aren't missing filings; they're layoffs the law was never written to capture.`,
   },
   {
-    title: "What it's for",
-    summary: "Who this is for",
-    body: `Aggregated, the filings show where and how fast layoffs are hitting — by company, state, sector, and over time, often months before the jobs are actually gone. A tool for workers, journalists, and researchers. Not a complete picture of the labor market.`,
+    title: "Who this is for",
+    body: `Aggregated, the filings show where and how fast layoffs are hitting, broken down by company, state, sector, and over time, often months before the jobs are actually gone. A tool for workers, journalists, and researchers. Not a complete picture of the labor market.`,
   },
 ];
 
@@ -68,14 +62,11 @@ export default function AboutPage() {
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl">
         {STEPS.map((s, i) => (
           <Card key={s.title} className="p-5">
-            <div className="flex items-baseline gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-3">
               <span className="w-6 h-6 rounded-full bg-ink text-white text-mini font-medium flex items-center justify-center tabular-nums shrink-0">
                 {i + 1}
               </span>
-              <div>
-                <div className="text-regular font-semibold text-ink">{s.title}</div>
-                <div className="text-mini text-ink_muted">{s.summary}</div>
-              </div>
+              <div className="text-regular font-semibold text-ink">{s.title}</div>
             </div>
             <p className="text-small text-ink_secondary leading-[1.5]">{s.body}</p>
           </Card>

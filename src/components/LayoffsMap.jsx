@@ -3,7 +3,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import statesTopo from "us-atlas/states-10m.json";
 import { navigate } from "../router";
-import { fmtInt } from "../ui";
+import { fmtInt, Link } from "../ui";
 
 // Proportional-symbol map of WARN layoffs by state. Bubbles are area-scaled to
 // workers affected in the trailing 12 months. Three coverage states are shown:
@@ -228,7 +228,13 @@ export default function LayoffsMap({ stateStats, window: win }) {
       {/* HTML legend caption — replaces the in-SVG nested circles, which collided
           with the Alaska inset bottom-left. */}
       <p className="text-mini text-ink_muted mt-2">
-        Circle size = workers affected, last 12 months. Hatched states don't publicly disclose WARN notices.
+        Circle size = workers affected, last 12 months · hatched states don't publicly disclose ·{" "}
+        <Link
+          to="/about"
+          className="text-ink_muted hover:text-ink underline decoration-dotted decoration-ink_faint underline-offset-2"
+        >
+          coverage &amp; history vary by state
+        </Link>
       </p>
     </div>
   );

@@ -16,7 +16,7 @@ const STEPS = [
   },
   {
     title: "Why a few states are missing",
-    body: `There is no national real-time WARN database. Every state publishes its own list, in its own format and on its own cadence. A few don't make notices public at all: Arkansas keeps them confidential by law (A.C.A. §11-10-314), and Georgia, Mississippi, New Hampshire, Wyoming, and Hawaii publish no usable public list.`,
+    body: `There is no national real-time WARN database. Every state publishes its own list, in its own format and on its own cadence. A few don't make notices public at all: Arkansas keeps them confidential by law (A.C.A. §11-10-314), and Mississippi, New Hampshire, Wyoming, and Hawaii publish no usable public list.`,
   },
   {
     title: "Why a layoff can be missing",

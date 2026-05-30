@@ -45,6 +45,7 @@ export function SortHeader({ label, sortKey, sort, setSort, align = "left" }) {
 export const STATE_WARN_URL = {
   CA: "https://edd.ca.gov/en/jobs_and_training/Layoff_Services_WARN/",
   TX: "https://www.twc.texas.gov/data-reports/warn-notice",
+  GA: "https://www.tcsg.edu/warn-public-view/",
   FL: "https://reactwarn.floridajobs.org/warnlist/reports",
   NY: "https://dol.ny.gov/warn-dashboard",
   NJ: "https://www.nj.gov/labor/employer-services/warn/",

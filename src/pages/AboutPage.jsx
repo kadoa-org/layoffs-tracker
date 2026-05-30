@@ -15,8 +15,8 @@ const STEPS = [
     body: `Each notice is a mass layoff, a plant closure, a relocation, or an amendment to an earlier filing. We normalize the wording every state uses into those few buckets so they can be compared and filtered consistently.`,
   },
   {
-    title: "Why a few states are missing",
-    body: `There is no national real-time WARN database. Every state publishes its own list, in its own format and on its own cadence. A few don't make notices public at all: Arkansas keeps them confidential by law (A.C.A. §11-10-314), and Mississippi, New Hampshire, Wyoming, and Hawaii publish no usable public list.`,
+    title: "Coverage and history vary by state",
+    body: `There is no national real-time WARN database. Every state publishes its own list, in its own format, on its own cadence, and going back only as far as it chooses. A few don't make notices public at all: Arkansas keeps them confidential by law (A.C.A. §11-10-314), and Mississippi, New Hampshire, Wyoming, and Hawaii publish no usable public list. How far back our coverage runs also differs: some states reach the 1990s, while others are recent-only because that's all the state puts online. So earlier years and more-recently-added states are under-counted, and the totals here are lighter than the true historical record.`,
   },
   {
     title: "Why a layoff can be missing",

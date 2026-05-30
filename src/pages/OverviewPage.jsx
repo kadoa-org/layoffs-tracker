@@ -73,8 +73,6 @@ export default function OverviewPage() {
             {headline}
           </h1>
           <p className="text-regular text-ink_muted">{subline}</p>
-        </div>
-        <div className="mt-8">
           <StatRail stats={stats} />
         </div>
       </section>

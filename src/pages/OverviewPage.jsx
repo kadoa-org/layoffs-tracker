@@ -81,6 +81,15 @@ export default function OverviewPage() {
         <Suspense fallback={<div className="border border-stroke rounded-md bg-panel h-[520px] animate-pulse" />}>
           <LayoffsMap stateStats={stateStats} window={mapWindow} />
         </Suspense>
+        <p className="mt-3 text-mini text-ink_muted">
+          Coverage and history vary by state — some are recent-only, so earlier years run lighter than the true record.{" "}
+          <Link
+            to="/about"
+            className="text-ink_muted hover:text-ink underline decoration-dotted decoration-ink_faint underline-offset-2"
+          >
+            How this is compiled →
+          </Link>
+        </p>
       </section>
 
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">

@@ -14,12 +14,12 @@ import {
   TABLE_ZEBRA_CLS,
 } from "../ui";
 
-// Desktop: Company / Type / State / City / Workers / Effective / Source.
+// Desktop: Company / Type / State / City / Workers / Filed / Effective / Source.
 // Mobile (<sm): Company (+ metadata line) / State / Workers.
-// Two flexible columns (Company + City) so the row spreads evenly; Effective is
-// fixed + nowrap so dates never wrap; a narrow trailing Source column links out.
+// Two flexible columns (Company + City) so the row spreads evenly; the two
+// dates are fixed + nowrap so they never wrap; a narrow trailing Source links out.
 const COLS_BASE = "grid gap-3 px-4";
-const COLS_DESKTOP = "sm:grid-cols-[minmax(0,1.5fr)_84px_44px_minmax(0,1fr)_68px_100px_52px]";
+const COLS_DESKTOP = "sm:grid-cols-[minmax(0,1.5fr)_84px_44px_minmax(0,1fr)_68px_100px_100px_52px]";
 const COLS_MOBILE = "grid-cols-[1fr_44px_60px]";
 const COLS = `${COLS_BASE} ${COLS_MOBILE} ${COLS_DESKTOP}`;
 
@@ -128,6 +128,9 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
         </span>
         <Th label="Workers" sortKey="num_affected" align="right" />
         <span className="hidden sm:block">
+          <Th label="Filed" sortKey="received_date" align="right" />
+        </span>
+        <span className="hidden sm:block">
           <Th label="Effective" sortKey="effective_date" align="right" />
         </span>
         <span className="hidden sm:block text-right">Source</span>
@@ -197,6 +200,9 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
               </div>
               <div className="hidden sm:block truncate text-ink_muted">{n.city ?? "--"}</div>
               <div className="text-right tabular-nums text-ink">{fmtCompact(n.num_affected)}</div>
+              <div className="hidden sm:block text-right tabular-nums text-ink_muted whitespace-nowrap">
+                {fmtDate(n.received_date)}
+              </div>
               <div className="hidden sm:block text-right tabular-nums text-ink_muted whitespace-nowrap">
                 {fmtDate(n.effective_date)}
               </div>

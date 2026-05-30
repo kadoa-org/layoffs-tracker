@@ -35,6 +35,10 @@ const SORT_MAP = {
   "-company": "company COLLATE NOCASE DESC",
   state: "state ASC",
   "-state": "state DESC",
+  city: "city COLLATE NOCASE ASC NULLS LAST",
+  "-city": "city COLLATE NOCASE DESC NULLS LAST",
+  event_type: "event_type ASC NULLS LAST",
+  "-event_type": "event_type DESC NULLS LAST",
 };
 
 // Translate the filter object into a (sql, params) pair that runs against the

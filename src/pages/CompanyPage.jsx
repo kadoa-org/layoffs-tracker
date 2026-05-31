@@ -1,6 +1,18 @@
 import React, { useMemo, useState } from "react";
 import NoticesTable from "../components/NoticesTable";
-import { Card, companySlug, fmtCompact, fmtDate, fmtInt, Link, SectionHeader, StatGrid } from "../ui";
+import {
+  Card,
+  companySlug,
+  DownloadCsvButton,
+  downloadCsv,
+  fmtCompact,
+  fmtDate,
+  fmtInt,
+  Link,
+  noticesToCsv,
+  SectionHeader,
+  StatGrid,
+} from "../ui";
 import { query } from "../useDatabase";
 
 export default function CompanyPage({ slug, db }) {
@@ -71,7 +83,15 @@ export default function CompanyPage({ slug, db }) {
           ]}
         />
       </Card>
-      <SectionHeader title="Filing history" />
+      <SectionHeader
+        title="Filing history"
+        right={
+          <DownloadCsvButton
+            count={filtered.length}
+            onClick={() => downloadCsv(`us-layoffs-warn-${slug}.csv`, noticesToCsv(sorted))}
+          />
+        }
+      />
       <NoticesTable notices={sorted} sort={sort} setSort={setSort} />
     </div>
   );

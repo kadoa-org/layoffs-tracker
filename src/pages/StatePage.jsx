@@ -1,6 +1,17 @@
 import React, { useMemo, useState } from "react";
 import NoticesTable from "../components/NoticesTable";
-import { Card, fmtCompact, fmtDate, fmtInt, Link, SectionHeader, StatGrid } from "../ui";
+import {
+  Card,
+  DownloadCsvButton,
+  downloadCsv,
+  fmtCompact,
+  fmtDate,
+  fmtInt,
+  Link,
+  noticesToCsv,
+  SectionHeader,
+  StatGrid,
+} from "../ui";
 import { query, queryOne } from "../useDatabase";
 
 export default function StatePage({ code, db }) {
@@ -59,7 +70,23 @@ export default function StatePage({ code, db }) {
           ]}
         />
       </Card>
-      <SectionHeader title="Filings" />
+      <SectionHeader
+        title="Filings"
+        right={
+          <DownloadCsvButton
+            count={meta.notices}
+            onClick={() => {
+              const all = query(
+                db,
+                `SELECT company, state, city, county, num_affected, event_type, received_date, effective_date
+                 FROM notices WHERE state = ? ORDER BY received_date DESC NULLS LAST`,
+                [code],
+              );
+              downloadCsv(`us-layoffs-warn-${code.toLowerCase()}.csv`, noticesToCsv(all));
+            }}
+          />
+        }
+      />
       <NoticesTable notices={sorted} sort={sort} setSort={setSort} limit={500} />
     </div>
   );

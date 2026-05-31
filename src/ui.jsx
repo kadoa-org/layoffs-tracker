@@ -258,3 +258,69 @@ export function companySlug(name) {
     .replace(/^-|-$/g, "")
     .slice(0, 60);
 }
+
+// ── CSV export ────────────────────────────────────────────────────────────────
+// The dataset is open, so every view offers a download of exactly what's shown.
+// Canonical, analysis-ready columns in a fixed order (raw event_type so the CSV
+// is machine-friendly, not the UI label).
+const CSV_COLUMNS = [
+  ["company", "company"],
+  ["state", "state"],
+  ["city", "city"],
+  ["county", "county"],
+  ["num_affected", "workers_affected"],
+  ["event_type", "type"],
+  ["received_date", "filed_date"],
+  ["effective_date", "effective_date"],
+];
+
+function csvCell(value) {
+  if (value == null) return "";
+  const s = String(value);
+  // Quote anything with a comma, quote, or newline; double internal quotes (RFC 4180).
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+export function noticesToCsv(rows) {
+  const header = CSV_COLUMNS.map(([, label]) => label).join(",");
+  const body = rows.map((r) => CSV_COLUMNS.map(([key]) => csvCell(r[key])).join(","));
+  return [header, ...body].join("\r\n");
+}
+
+export function downloadCsv(filename, csv) {
+  // Excel reads UTF-8 cleanly with a BOM; harmless elsewhere.
+  const blob = new Blob([`﻿${csv}`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Reusable "Download CSV" button. `count` (optional) shows how many rows the
+// download will contain, so users know it's the full filtered set, not a page.
+export function DownloadCsvButton({ onClick, count }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 h-7 pl-2 pr-2.5 rounded-md border border-stroke bg-panel text-mini text-ink_muted hover:text-ink hover:border-ink_faint transition-colors"
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden="true"
+      >
+        <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span>Download CSV{count != null ? ` · ${fmtInt(count)}` : ""}</span>
+    </button>
+  );
+}

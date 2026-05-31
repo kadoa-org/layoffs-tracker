@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import FilterBar, { defaultFilters, FILTER_KEYS, QUERY_DEFAULTS } from "../components/FilterBar";
 import NoticesTable from "../components/NoticesTable";
 import { useQueryState } from "../router";
-import { fmtInt, SectionHeader } from "../ui";
+import { DownloadCsvButton, downloadCsv, fmtInt, noticesToCsv, SectionHeader } from "../ui";
 import { query, queryOne } from "../useDatabase";
 
 const DISPLAY_LIMIT = 500;
@@ -139,9 +139,32 @@ export default function NoticesPage({ db }) {
   const showing = Math.min(rows.length, DISPLAY_LIMIT);
   const hasMore = rows.length > DISPLAY_LIMIT;
 
+  // Export the FULL filtered/sorted set (not just the 500 shown), generated
+  // client-side from sql.js. Re-runs the same WHERE/ORDER BY without the LIMIT.
+  const exportCsv = () => {
+    const { clause, params } = buildWhere(filters);
+    const orderBy = SORT_MAP[sort] ?? SORT_MAP["-received_date"];
+    const all = query(
+      db,
+      `SELECT company, state, city, county, num_affected, event_type, received_date, effective_date
+       FROM notices ${clause} ORDER BY ${orderBy}`,
+      params,
+    );
+    const tag = [filters.state !== "all" && filters.state, filters.type !== "all" && filters.type, filters.search]
+      .filter(Boolean)
+      .join("-")
+      .replace(/[^\w-]/g, "")
+      .toLowerCase();
+    downloadCsv(`us-layoffs-warn${tag ? `-${tag}` : ""}.csv`, noticesToCsv(all));
+  };
+
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
-      <SectionHeader title="All notices" subtitle={`${fmtInt(showing)} of ${fmtInt(total)}`} />
+      <SectionHeader
+        title="All notices"
+        subtitle={`${fmtInt(showing)} of ${fmtInt(total)}`}
+        right={total > 0 ? <DownloadCsvButton onClick={exportCsv} count={total} /> : null}
+      />
       <div className="mb-4">
         <FilterBar filters={filters} setFilters={setFilters} stateOptions={stateOptions} />
       </div>

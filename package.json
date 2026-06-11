@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build-db": "bun scripts/build-db.js",
-    "build": "bun scripts/build-db.js && vite build",
+    "build": "bun scripts/build-db.js && vite build && node scripts/prerender.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -23,11 +23,15 @@ function LoadingScreen() {
         <div className="h-10 w-3/4 bg-muted rounded animate-pulse mb-3" />
         <div className="h-4 w-2/3 bg-muted rounded animate-pulse mb-8" />
         <div className="border border-stroke rounded-md bg-panel overflow-hidden">
-          <div className="grid grid-cols-5">
+          {/* 2 cols on mobile, 3 at sm, 5 at md+. A fixed grid-cols-5 forced
+              ~450px of min width and overflowed the phone viewport during load.
+              Borders are drawn with divide-* so wrapped rows don't leave a
+              dangling right border. */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 divide-x divide-y md:divide-y-0 divide-stroke">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="px-5 py-4 border-r border-stroke last:border-r-0">
-                <div className="h-3 w-16 bg-muted rounded animate-pulse mb-3" />
-                <div className="h-6 w-20 bg-muted rounded animate-pulse" />
+              <div key={i} className="px-4 py-4 sm:px-5">
+                <div className="h-3 w-16 max-w-full bg-muted rounded animate-pulse mb-3" />
+                <div className="h-6 w-20 max-w-full bg-muted rounded animate-pulse" />
               </div>
             ))}
           </div>

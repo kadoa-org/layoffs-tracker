@@ -197,7 +197,7 @@ export function PropertyLabel({ children, className = "" }) {
 // company/state summary cards so they stay aligned at every width.
 export function StatGrid({ items }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 bg-panel rounded-md overflow-hidden">
+    <div className="grid grid-cols-2 sm:grid-cols-4 bg-white border border-[#b1b4b6] overflow-hidden">
       {items.map((it, i) => {
         const cls = [
           "px-4 sm:px-5 py-4 min-w-0 border-stroke",
@@ -218,17 +218,17 @@ export function StatGrid({ items }) {
 }
 
 export function Segmented({ value, onChange, options, size = "default" }) {
-  const sz = size === "sm" ? "h-7 text-mini" : "h-8 text-small";
+  const sz = size === "sm" ? "h-[26px] text-mini" : "h-[32px] text-[15px]";
   return (
-    <div className={`inline-flex items-center rounded-md border border-stroke bg-panel p-[2px] ${sz}`}>
-      {options.map((o) => {
+    <div className={`inline-flex items-center border border-[#0b0c0c] bg-white overflow-hidden ${sz}`}>
+      {options.map((o, i) => {
         const active = o.value === value;
         return (
           <button
             key={o.value}
             onClick={() => onChange(o.value)}
-            className={`px-2.5 h-full rounded-[5px] font-[450] transition-colors ${
-              active ? "bg-muted text-ink" : "text-ink_muted hover:text-ink"
+            className={`px-2.5 h-full transition-colors whitespace-nowrap ${i > 0 ? "border-l border-[#b1b4b6]" : ""} ${
+              active ? "bg-[#1d70b8] text-white" : "text-[#0b0c0c] hover:bg-[#f3f2f1]"
             }`}
           >
             {o.label}
@@ -301,7 +301,7 @@ export function DownloadCsvButton({ onClick, count }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 h-7 pl-2 pr-2.5 rounded-md border border-stroke bg-panel text-mini text-ink_muted hover:text-ink hover:border-ink_faint transition-colors"
+      className="dk-btn"
     >
       <svg
         width="13"

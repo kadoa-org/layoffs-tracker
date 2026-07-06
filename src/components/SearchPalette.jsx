@@ -186,8 +186,8 @@ export default function SearchPalette({ open, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4">
       <div className="absolute inset-0 bg-ink/10 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[560px] bg-panel border border-stroke rounded-md shadow-hover overflow-hidden">
-        <div className="flex items-center gap-2 px-3 border-b border-stroke h-11">
+      <div className="relative w-full max-w-[560px] bg-panel border border-[#b1b4b6]  shadow-hover overflow-hidden">
+        <div className="flex items-center gap-2 px-3 border-b border-[#b1b4b6] h-11">
           <svg
             width="14"
             height="14"
@@ -209,7 +209,7 @@ export default function SearchPalette({ open, onClose }) {
             placeholder="Search companies, states, or jump to a view..."
             className="flex-1 bg-transparent text-regular placeholder:text-ink_faint text-ink focus:outline-none"
           />
-          <kbd className="px-1.5 py-0.5 rounded border border-stroke bg-muted font-mono text-mini text-ink_muted">
+          <kbd className="px-1.5 py-0.5 rounded border border-[#b1b4b6] bg-muted font-mono text-mini text-ink_muted">
             Esc
           </kbd>
         </div>
@@ -258,14 +258,14 @@ export default function SearchPalette({ open, onClose }) {
             })()
           )}
         </div>
-        <div className="flex items-center gap-3 px-3 h-8 border-t border-stroke text-mini text-ink_muted">
+        <div className="flex items-center gap-3 px-3 h-8 border-t border-[#b1b4b6] text-mini text-ink_muted">
           <span className="inline-flex items-center gap-1">
-            <kbd className="px-1 rounded border border-stroke bg-muted font-mono">↑</kbd>
-            <kbd className="px-1 rounded border border-stroke bg-muted font-mono">↓</kbd>
+            <kbd className="px-1 rounded border border-[#b1b4b6] bg-muted font-mono">↑</kbd>
+            <kbd className="px-1 rounded border border-[#b1b4b6] bg-muted font-mono">↓</kbd>
             <span className="ml-1">navigate</span>
           </span>
           <span className="inline-flex items-center gap-1">
-            <kbd className="px-1 rounded border border-stroke bg-muted font-mono">↵</kbd>
+            <kbd className="px-1 rounded border border-[#b1b4b6] bg-muted font-mono">↵</kbd>
             <span className="ml-1">open</span>
           </span>
         </div>

@@ -50,7 +50,7 @@ function SourceLink({ state }) {
   );
 }
 
-export default function NoticesTable({ notices, sort, setSort, limit, sortable = true }) {
+export default function NoticesTable({ notices, sort, setSort, limit, sortable = true, compact = false }) {
   const sorted = useMemo(() => (sortable ? sortNotices(notices, sort) : notices), [notices, sort, sortable]);
   const rows = limit ? sorted.slice(0, limit) : sorted;
 
@@ -119,9 +119,12 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
     { key: "source", header: "Source", align: "right", render: (n) => <SourceLink state={n.state} /> },
   ];
 
+  const visible = compact
+    ? columns.filter((c) => ["company", "state", "num_affected", "received_date"].includes(c.key))
+    : columns;
   return (
     <DataTable
-      columns={columns}
+      columns={visible}
       rows={rows}
       rowKey={(n) => n.id}
       sort={kitSort}

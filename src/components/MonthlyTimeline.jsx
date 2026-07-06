@@ -118,7 +118,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT }) {
 
   if (series.length === 0) {
     return (
-      <div className="border border-stroke rounded-md bg-panel h-48 flex items-center justify-center text-mini text-ink_muted">
+      <div className="border border-[#b1b4b6]  bg-panel h-48 flex items-center justify-center text-mini text-ink_muted">
         No timeline data yet.
       </div>
     );
@@ -148,7 +148,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT }) {
   const onLeave = () => setHoverIdx(null);
 
   return (
-    <div ref={containerRef} className="border border-stroke rounded-md bg-panel p-3 sm:p-4">
+    <div ref={containerRef} className="border border-[#b1b4b6]  bg-panel p-3 sm:p-4">
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="text-small font-medium text-ink truncate">Workers affected per {cfg.granularity}</div>
         <div className="shrink-0">

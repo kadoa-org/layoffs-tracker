@@ -131,7 +131,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
   const isMobile = width < 560;
 
   return (
-    <div ref={onResize} className="border border-stroke rounded-md bg-panel p-3 sm:p-4">
+    <div ref={onResize} className="border border-[#b1b4b6]  bg-panel p-3 sm:p-4">
       <div className="mb-2 sm:mb-3">
         <div className="text-small font-medium text-ink">Layoffs by state</div>
         {/* Single-line, never wraps — a fixed line that doesn't push into the map. */}

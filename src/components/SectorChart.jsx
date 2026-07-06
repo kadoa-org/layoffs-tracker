@@ -12,7 +12,7 @@ export default function SectorChart({ sectors, classified }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-stroke flex items-center justify-between gap-3 flex-wrap">
+      <div className="px-4 py-3 border-b border-[#b1b4b6] flex items-center justify-between gap-3 flex-wrap">
         <div className="text-mini text-ink_muted">
           Among <span className="text-ink font-medium">{fmtInt(classified)}</span> notices with reported industry
         </div>
@@ -37,8 +37,8 @@ export default function SectorChart({ sectors, classified }) {
               <span className="text-mini sm:text-small text-ink_muted truncate" title={s.sector}>
                 {s.sector}
               </span>
-              <div className="h-5 bg-muted/40 rounded-sm overflow-hidden">
-                <div className="h-full bg-accent/80 rounded-sm" style={{ width: `${Math.max(pct, 1.5)}%` }} />
+              <div className="h-5 bg-muted/40  overflow-hidden">
+                <div className="h-full bg-accent/80 " style={{ width: `${Math.max(pct, 1.5)}%` }} />
               </div>
               <span className="text-mini sm:text-small text-ink font-medium tabular-nums text-right">
                 {metric === "workers" ? fmtCompact(s.workers) : fmtInt(s.notices)}

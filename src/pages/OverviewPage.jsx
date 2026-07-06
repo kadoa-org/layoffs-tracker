@@ -101,7 +101,7 @@ export default function OverviewPage() {
         {/* Preview is a fixed 15-row slice; in-place sorting wouldn't help.
             Make the headers feel interactive by deep-linking to /notices
             with the requested sort applied. */}
-        <NoticesTable
+        <NoticesTable compact
           notices={recent}
           sort={null}
           setSort={(key) => navigate(`/notices?sort=${encodeURIComponent(key)}`)}

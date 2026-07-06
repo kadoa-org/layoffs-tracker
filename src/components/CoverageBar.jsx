@@ -67,7 +67,7 @@ export default function CoverageBar({ states = [] }) {
   const pendingCount = ALL_JURISDICTIONS.length - liveCount - blockedCount;
 
   return (
-    <div className="border border-stroke rounded-md bg-panel px-4 py-2.5 flex items-center gap-4 flex-wrap">
+    <div className="border border-[#b1b4b6]  bg-panel px-4 py-2.5 flex items-center gap-4 flex-wrap">
       <span className="text-mini text-ink_muted whitespace-nowrap">
         Coverage{" "}
         <span className="text-ink font-medium tabular-nums">
@@ -87,14 +87,14 @@ export default function CoverageBar({ states = [] }) {
           const cls = isLive
             ? "bg-accent text-white border-accent"
             : isBlocked
-              ? "bg-canvas text-ink_faint border-stroke line-through decoration-ink_faint/60"
-              : "bg-muted text-ink_muted border-stroke";
+              ? "bg-canvas text-ink_faint border-[#b1b4b6] line-through decoration-ink_faint/60"
+              : "bg-muted text-ink_muted border-[#b1b4b6]";
           const title = isLive ? `${code}, live` : isBlocked ? `${code}, no public WARN portal` : `${code}, pending`;
           return (
             <div
               key={code}
               title={title}
-              className={`h-5 px-1.5 rounded-[3px] border text-[10px] font-medium font-mono flex items-center justify-center tabular-nums ${cls}`}
+              className={`h-5 px-1.5  border text-[10px] font-medium font-mono flex items-center justify-center tabular-nums ${cls}`}
             >
               {code}
             </div>

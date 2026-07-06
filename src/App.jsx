@@ -22,7 +22,7 @@ function LoadingScreen() {
         <div className="h-4 w-40 bg-muted rounded animate-pulse mb-4" />
         <div className="h-10 w-3/4 bg-muted rounded animate-pulse mb-3" />
         <div className="h-4 w-2/3 bg-muted rounded animate-pulse mb-8" />
-        <div className="border border-stroke rounded-md bg-panel overflow-hidden">
+        <div className="border border-[#b1b4b6]  bg-panel overflow-hidden">
           {/* 2 cols on mobile, 3 at sm, 5 at md+. A fixed grid-cols-5 forced
               ~450px of min width and overflowed the phone viewport during load.
               Borders are drawn with divide-* so wrapped rows don't leave a
@@ -37,7 +37,7 @@ function LoadingScreen() {
           </div>
         </div>
         <div className="mt-8 h-6 w-64 bg-muted rounded animate-pulse" />
-        <div className="mt-4 border border-stroke rounded-md bg-panel p-4 animate-pulse h-[520px]" />
+        <div className="mt-4 border border-[#b1b4b6]  bg-panel p-4 animate-pulse h-[520px]" />
       </div>
     </div>
   );

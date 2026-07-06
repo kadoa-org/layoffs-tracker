@@ -1,6 +1,7 @@
 // Reusable primitives. Linear.app sizing: 18px root, 0.9375rem body.
 import React from "react";
 import { navigate } from "./router";
+import { Tag as DkTag } from "./kit";
 
 export const TABLE_HEADER_CLS = "text-mini font-medium text-ink_muted";
 export const TABLE_ZEBRA_CLS = "[&>*:nth-child(even)]:bg-muted/30";
@@ -131,18 +132,10 @@ export function fmtDate(iso) {
 }
 
 // Categorical chip. Lightly-rounded squares, regular weight, translucent backgrounds.
-export function Pill({ tone = "neutral", children, size = "default" }) {
-  const toneCls = {
-    neutral: "bg-muted text-ink_muted",
-    blue: "bg-[lch(93%_8_265)] text-[lch(38%_20_265)]",
-    violet: "bg-[lch(93%_8_300)] text-[lch(38%_25_295)]",
-    amber: "bg-[lch(94%_12_70)] text-[lch(38%_30_55)]",
-    buy: "bg-buy_bg text-buy",
-    sell: "bg-sell_bg text-sell",
-    warn: "bg-warn_bg text-warn",
-  }[tone];
-  const sz = size === "xs" ? "text-[0.6875rem] px-[5px] py-[1px]" : "text-mini px-[6px] py-[2px]";
-  return <span className={`inline-flex items-center rounded-[4px] font-[450] ${sz} ${toneCls}`}>{children}</span>;
+export function Pill({ tone = "neutral", children }) {
+  // Alias onto the kit Tag — one tag implementation across micropages.
+  const map = { neutral: "grey", blue: "blue", violet: "purple", amber: "orange", buy: "green", sell: "red", warn: "yellow" };
+  return <DkTag tone={map[tone] || "grey"}>{children}</DkTag>;
 }
 
 // Map event_type -> tone + label. mass_layoff = sell red, closure = warn amber.
@@ -164,7 +157,7 @@ export function Link({ to, className = "", children, onClick, ...rest }) {
   return (
     <a
       href={to}
-      className={`text-accent hover:underline underline-offset-2 ${className}`}
+      className={`dk-link ${className}`}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey) return;
         e.preventDefault();
@@ -179,20 +172,21 @@ export function Link({ to, className = "", children, onClick, ...rest }) {
 }
 
 export function Card({ children, className = "" }) {
-  return <div className={`border border-stroke rounded-md bg-panel ${className}`}>{children}</div>;
+  return <div className={`border border-[#b1b4b6] bg-white ${className}`}>{children}</div>;
 }
 
 export function SectionHeader({ title, subtitle, right }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 mb-4">
-      <div className="min-w-0">
-        <h2 className="text-large font-semibold text-ink tracking-[-0.005em]">{title}</h2>
-        {subtitle && <p className="text-small text-ink_muted mt-[2px]">{subtitle}</p>}
+    <div className="dk-section-head">
+      <div style={{ minWidth: 0 }}>
+        <h2>{title}</h2>
+        {subtitle && <p className="dk-hint">{subtitle}</p>}
       </div>
-      {right && <div className="shrink-0 whitespace-nowrap">{right}</div>}
+      {right && <div style={{ flexShrink: 0, whiteSpace: "nowrap" }}>{right}</div>}
     </div>
   );
 }
+
 
 export function PropertyLabel({ children, className = "" }) {
   return <div className={`text-mini text-ink_muted ${className}`}>{children}</div>;
@@ -322,5 +316,24 @@ export function DownloadCsvButton({ onClick, count }) {
       </svg>
       <span>Download CSV{count != null ? ` · ${fmtInt(count)}` : ""}</span>
     </button>
+  );
+}
+
+// SPA row link: real <a href> (cmd/ctrl-click works) that routes client-side
+// on plain clicks. Used for primary cells inside kit DataTables.
+export function RowLinkNav({ to, children }) {
+  return (
+    <a
+      href={to}
+      className="no-underline"
+      style={{ color: "var(--dk-ink)" }}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        navigate(to);
+      }}
+    >
+      {children}
+    </a>
   );
 }

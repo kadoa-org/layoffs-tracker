@@ -71,7 +71,7 @@ export default function CompanyPage({ slug, db }) {
           </Link>{" "}
           /
         </p>
-        <h1 className="text-title font-semibold text-ink tracking-[-0.012em]">{name}</h1>
+        <h1 className="dk-h1" style={{ marginBottom: 2 }}>{name}</h1>
       </div>
       <Card className="mb-8 overflow-hidden">
         <StatGrid

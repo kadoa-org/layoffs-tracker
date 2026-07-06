@@ -57,7 +57,7 @@ export default function StatePage({ code, db }) {
           </Link>{" "}
           /
         </p>
-        <h1 className="text-title font-semibold text-ink tracking-[-0.012em]">{code}</h1>
+        <h1 className="dk-h1" style={{ marginBottom: 2 }}>{code}</h1>
         {meta?.agency && <p className="text-small text-ink_muted mt-1">{meta.agency}</p>}
       </div>
       <Card className="mb-8 overflow-hidden">

@@ -260,7 +260,7 @@ export default function FilterBar({ filters, setFilters, stateOptions }) {
   const anyApplied = appliedKeys.length > 0 || (filters.search ?? "") !== "";
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="dk-toolbar">
       <InlineSearch value={filters.search ?? ""} onChange={(v) => setFilters((prev) => ({ ...prev, search: v }))} />
 
       {appliedKeys.map((k) => (
@@ -307,7 +307,7 @@ function InlineSearch({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Company, city, county..."
-        className="h-7 w-[220px] pl-7 pr-2 text-small bg-panel border border-stroke rounded-md placeholder:text-ink_faint text-ink focus:outline-none focus:ring-2 focus:ring-accent/25 focus:border-accent/40"
+        className="dk-input pl-7" style={{ width: 240 }}
       />
     </div>
   );
@@ -324,7 +324,7 @@ function FilterChip({ cat, value, onChange, onRemove, open, setOpen }) {
   const btnRef = useRef(null);
 
   return (
-    <div className="relative inline-flex items-stretch border border-stroke rounded-md bg-panel overflow-hidden h-7 text-small">
+    <div className="relative inline-flex items-stretch border border-[#0b0c0c] bg-white overflow-hidden h-[32px] text-[15px]">
       <span className="inline-flex items-center gap-1.5 pl-2 pr-1.5 text-ink_muted border-r border-stroke">
         <span className="text-ink_muted">{cat.icon}</span>
         <span className="font-medium text-ink">{cat.label}</span>
@@ -382,7 +382,7 @@ function AddFilterButton({ categories, onAdd, open, setOpen }) {
       <button
         ref={btnRef}
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-stroke bg-panel text-small text-ink_muted hover:text-ink hover:border-ink_faint transition-colors"
+        className="dk-btn"
       >
         <span>{icon.plus}</span>
         <span>Filter</span>
@@ -549,7 +549,7 @@ function Popover({ anchor, children, onClose, placement = "bottom" }) {
   return (
     <div
       ref={ref}
-      className="fixed z-50 bg-panel border border-stroke rounded-md shadow-hover"
+      className="fixed z-50 bg-white border border-[#b1b4b6] shadow-hover"
       style={{ top: pos.top, left: pos.left }}
     >
       {children}

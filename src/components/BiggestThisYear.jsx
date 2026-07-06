@@ -1,8 +1,6 @@
 import React, { useMemo } from "react";
-import { navigate } from "../router";
-import { Card, companySlug, eventPill, fmtCompact, fmtDate, Link, Pill } from "../ui";
-
-const COLS = "grid grid-cols-[24px_1fr_56px_120px_90px_90px] gap-3 px-4";
+import { DataTable } from "../kit";
+import { companySlug, eventPill, fmtCompact, fmtDate, Link, Pill, RowLinkNav } from "../ui";
 
 // Top-N largest layoff filings for a given year. Reddit-friendly leaderboard.
 export default function BiggestThisYear({ notices, year, limit = 10 }) {
@@ -20,55 +18,32 @@ export default function BiggestThisYear({ notices, year, limit = 10 }) {
       .slice(0, limit);
   }, [notices, cutoff, next, limit]);
 
+  const columns = [
+    { key: "rank", header: "#", width: 32, align: "right", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{n._rank}</span> },
+    {
+      key: "company",
+      header: "Company",
+      render: (n) => {
+        const ep = eventPill(n.event_type);
+        return (
+          <span className="flex items-center gap-2 min-w-0">
+            <RowLinkNav to={`/company/${companySlug(n.company)}`}>
+              <span style={{ fontWeight: 500 }} className="truncate">{n.company}</span>
+            </RowLinkNav>
+            <Pill tone={ep.tone}>{ep.label}</Pill>
+          </span>
+        );
+      },
+    },
+    { key: "state", header: "State", render: (n) => <Link to={`/state/${n.state}`}>{n.state}</Link> },
+    { key: "city", header: "City", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{n.city ?? "--"}</span> },
+    { key: "workers", header: "Workers", align: "right", render: (n) => <strong>{fmtCompact(n.num_affected)}</strong> },
+    { key: "effective", header: "Effective", align: "right", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{fmtDate(n.effective_date)}</span> },
+  ];
+
   if (rows.length === 0) {
-    return (
-      <Card className="h-32 flex items-center justify-center text-mini text-ink_muted">No filings yet for {y}.</Card>
-    );
+    return <p className="dk-hint">No filings yet for {y}.</p>;
   }
 
-  return (
-    <Card className="overflow-hidden">
-      <div className="grid grid-cols-[24px_1fr_56px_120px_90px_90px] gap-3 px-4 h-9 items-center border-b border-stroke text-mini font-medium text-ink_muted">
-        <span className="text-right">#</span>
-        <span>Company</span>
-        <span>State</span>
-        <span>City</span>
-        <span className="text-right">Workers</span>
-        <span className="text-right">Effective</span>
-      </div>
-      <div className="text-small [&>*:nth-child(even)]:bg-muted/30">
-        {rows.map((n, i) => {
-          const slug = companySlug(n.company);
-          const ep = eventPill(n.event_type);
-          return (
-            <div
-              key={n.id}
-              onClick={() => navigate(`/company/${slug}`)}
-              className={`${COLS} h-10 items-center hover:bg-hover cursor-pointer border-b border-stroke_soft last:border-b-0`}
-            >
-              <span className="text-right text-mini text-ink_faint tabular-nums">{i + 1}</span>
-              <span className="truncate text-ink flex items-center gap-2 min-w-0">
-                <span className="truncate">{n.company}</span>
-                <Pill tone={ep.tone} size="xs">
-                  {ep.label}
-                </Pill>
-              </span>
-              <span>
-                <Link
-                  to={`/state/${n.state}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="no-underline hover:no-underline text-ink_muted"
-                >
-                  {n.state}
-                </Link>
-              </span>
-              <span className="truncate text-ink_muted">{n.city ?? "--"}</span>
-              <span className="text-right tabular-nums text-ink font-medium">{fmtCompact(n.num_affected)}</span>
-              <span className="text-right tabular-nums text-ink_muted">{fmtDate(n.effective_date)}</span>
-            </div>
-          );
-        })}
-      </div>
-    </Card>
-  );
+  return <DataTable columns={columns} rows={rows.map((n, i) => ({ ...n, _rank: i + 1 }))} rowKey={(n) => n.id} />;
 }

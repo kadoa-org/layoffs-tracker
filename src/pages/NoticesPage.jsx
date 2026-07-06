@@ -160,11 +160,13 @@ export default function NoticesPage({ db }) {
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
-      <SectionHeader
-        title="All notices"
-        subtitle={`${fmtInt(showing)} of ${fmtInt(total)}`}
-        right={total > 0 ? <DownloadCsvButton onClick={exportCsv} count={total} /> : null}
-      />
+      <div className="dk-section-head">
+        <div style={{ minWidth: 0 }}>
+          <h1 className="dk-h1" style={{ marginBottom: 2 }}>All notices</h1>
+          <p className="dk-hint">{`${fmtInt(showing)} of ${fmtInt(total)}`}</p>
+        </div>
+        {total > 0 && <DownloadCsvButton onClick={exportCsv} count={total} />}
+      </div>
       <div className="mb-4">
         <FilterBar filters={filters} setFilters={setFilters} stateOptions={stateOptions} />
       </div>

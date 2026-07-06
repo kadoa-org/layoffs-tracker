@@ -69,7 +69,7 @@ export default function OverviewPage() {
     <>
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-6">
         <div className="max-w-3xl">
-          <h1 className="text-[2rem] sm:text-display font-semibold leading-[1.08] tracking-[-0.016em] text-ink mb-4">
+          <h1 className="dk-h1">
             {headline}
           </h1>
           <p className="text-regular text-ink_muted">{subline}</p>

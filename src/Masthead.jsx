@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SearchPalette from "./components/SearchPalette";
-import { Button, LiveBadge, NavBar, SiteHeader } from "./kit";
+import { Button, GitHubButton, LiveBadge, NavBar, SiteHeader } from "./kit";
 import { useRoute } from "./router";
 import { Link } from "./ui";
 
@@ -60,6 +60,7 @@ export default function Masthead() {
         right={
           <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LiveBadge>{freshness(generatedAt)}</LiveBadge>
+            <GitHubButton repo="kadoa-org/layoffs-tracker" />
             <Button inverse onClick={() => setSearchOpen(true)} aria-label="Search">
               Search {isMac ? "⌘K" : "Ctrl+K"}
             </Button>

@@ -1,8 +1,24 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "layoffs.kadoa.com"
+        }
+      ],
+      "destination": "https://www.kadoa.com/layoffs/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "layoffs.kadoa.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "layoffs.kadoa.com"
+        }
+      ],
       "destination": "https://www.kadoa.com/layoffs/:path*",
       "permanent": true
     }

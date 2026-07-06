@@ -11,7 +11,7 @@ function loadDb() {
   if (!dbPromise) {
     dbPromise = (async () => {
       const SQL = await initSqlJs({ locateFile: () => SQL_WASM_URL });
-      const response = await fetch("/data/layoffs.db");
+      const response = await fetch(`${import.meta.env.BASE_URL}data/layoffs.db`);
       if (!response.ok) throw new Error(`Failed to load layoffs.db: ${response.status}`);
       const buffer = await response.arrayBuffer();
       return new SQL.Database(new Uint8Array(buffer));

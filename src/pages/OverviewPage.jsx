@@ -20,7 +20,7 @@ function useOverview() {
   const [error, setError] = useState(null);
   useEffect(() => {
     let cancelled = false;
-    fetch("/data/overview.json")
+    fetch(`${import.meta.env.BASE_URL}data/overview.json`)
       .then((r) => {
         if (!r.ok) throw new Error(`overview.json: ${r.status}`);
         return r.json();

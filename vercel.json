@@ -1,3 +1,16 @@
 {
-  "rewrites": [{ "source": "/((?!data/|assets/|favicon|robots|sitemap).*)", "destination": "/index.html" }]
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "layoffs.kadoa.com" }],
+      "destination": "https://www.kadoa.com/layoffs/:path*",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/layoffs/((?!data/|assets/|favicon|robots|sitemap).*)",
+      "destination": "/layoffs/index.html"
+    }
+  ]
 }

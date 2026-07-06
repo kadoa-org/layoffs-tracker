@@ -72,7 +72,7 @@ let companiesPromise = null;
 function loadCompanies() {
   if (companiesCache) return Promise.resolve(companiesCache);
   if (companiesPromise) return companiesPromise;
-  companiesPromise = fetch("/data/companies.json")
+  companiesPromise = fetch(`${import.meta.env.BASE_URL}data/companies.json`)
     .then((r) => r.json())
     .then((data) => {
       companiesCache = data.map((c) => ({ ...c, _lower: c.name.toLowerCase() }));

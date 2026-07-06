@@ -40,7 +40,7 @@ export default function Masthead() {
   }, []);
 
   useEffect(() => {
-    fetch("/data/stats.json")
+    fetch(`${import.meta.env.BASE_URL}data/stats.json`)
       .then((r) => r.json())
       .then((s) => setGeneratedAt(s?.generatedAt ?? null))
       .catch(() => {});

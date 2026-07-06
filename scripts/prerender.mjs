@@ -18,9 +18,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const DIST = path.join(ROOT, "dist");
+const DIST = path.join(ROOT, "dist", "layoffs"); // vite outDir (site lives under /layoffs/)
 const DATA = path.join(ROOT, "public", "data");
-const BASE = "https://layoffs.kadoa.com";
+const PREFIX = "/layoffs"; // public path prefix behind the www.kadoa.com reverse proxy
+const BASE = `https://www.kadoa.com${PREFIX}`;
 const TOP_COMPANIES = 1500;
 
 const esc = (s) =>
@@ -195,7 +196,7 @@ function renderRoute(template, route) {
   if (route.h1) {
     html = html.replace(
       /(<div id="root">)(<\/div>)/,
-      `$1<main><h1>${esc(route.h1)}</h1>${route.body ?? ""}<p><a href="/">US Layoffs Tracker home</a></p></main>$2`,
+      `$1<main><h1>${esc(route.h1)}</h1>${route.body ?? ""}<p><a href="${PREFIX}/">US Layoffs Tracker home</a></p></main>$2`,
     );
   }
   return html;

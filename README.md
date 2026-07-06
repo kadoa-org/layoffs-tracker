@@ -2,7 +2,7 @@
 
 Open dataset and dashboard of every US layoff disclosed under the WARN Act. ~42,000 mass-layoff and plant-closure notices from 45 state labor departments, by company, state, and date.
 
-**Live:** https://layoffs.kadoa.com
+**Live:** https://www.kadoa.com/layoffs
 
 ## Run locally
 

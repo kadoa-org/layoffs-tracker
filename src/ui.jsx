@@ -1,6 +1,6 @@
 // Reusable primitives. Linear.app sizing: 18px root, 0.9375rem body.
 import React from "react";
-import { navigate } from "./router";
+import { navigate, withBase } from "./router";
 import { Tag as DkTag } from "./kit";
 
 export const TABLE_HEADER_CLS = "text-mini font-medium text-ink_muted";
@@ -156,7 +156,7 @@ export function statePill(state) {
 export function Link({ to, className = "", children, onClick, ...rest }) {
   return (
     <a
-      href={to}
+      href={withBase(to)}
       className={`dk-link ${className}`}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey) return;
@@ -324,7 +324,7 @@ export function DownloadCsvButton({ onClick, count }) {
 export function RowLinkNav({ to, children }) {
   return (
     <a
-      href={to}
+      href={withBase(to)}
       className="no-underline"
       style={{ color: "var(--dk-ink)" }}
       onClick={(e) => {

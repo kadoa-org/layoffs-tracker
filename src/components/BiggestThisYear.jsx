@@ -23,6 +23,7 @@ export default function BiggestThisYear({ notices, year, limit = 10 }) {
     {
       key: "company",
       header: "Company",
+      clamp: true,
       render: (n) => {
         const ep = eventPill(n.event_type);
         return (
@@ -35,10 +36,10 @@ export default function BiggestThisYear({ notices, year, limit = 10 }) {
         );
       },
     },
-    { key: "state", header: "State", render: (n) => <Link to={`/state/${n.state}`}>{n.state}</Link> },
-    { key: "city", header: "City", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{n.city ?? "--"}</span> },
+    { key: "state", header: "State", hideBelow: "sm", render: (n) => <Link to={`/state/${n.state}`}>{n.state}</Link> },
+    { key: "city", header: "City", hideBelow: "sm", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{n.city ?? "--"}</span> },
     { key: "workers", header: "Workers", align: "right", render: (n) => <strong>{fmtCompact(n.num_affected)}</strong> },
-    { key: "effective", header: "Effective", align: "right", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{fmtDate(n.effective_date)}</span> },
+    { key: "effective", header: "Effective", align: "right", hideBelow: "sm", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{fmtDate(n.effective_date)}</span> },
   ];
 
   if (rows.length === 0) {

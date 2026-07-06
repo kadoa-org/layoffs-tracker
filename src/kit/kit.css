@@ -148,3 +148,13 @@
 .dk-link { color: var(--dk-link); text-decoration: underline; text-underline-offset: 2px; }
 .dk-link:hover { text-decoration-thickness: 2px; }
 .dk-link:focus-visible { outline: 3px solid var(--dk-focus); outline-offset: 0; }
+
+/* ── Responsive column priority ── columns declare hideBelow:"sm"|"md";
+   on small screens they disappear instead of forcing horizontal scroll. */
+@media (max-width: 640px) { .dk-hide-sm { display: none !important; } }
+@media (max-width: 900px) { .dk-hide-md { display: none !important; } }
+
+/* ── Column clamp ── the flexible text column in a full-width table truncates
+   with ellipsis instead of forcing horizontal overflow (max-width:0 trick). */
+.dk-table td.dk-clamp { max-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dk-table td.dk-clamp * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

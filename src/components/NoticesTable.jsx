@@ -65,6 +65,7 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       key: "company",
       header: "Company",
       sortable,
+      clamp: true,
       render: (n) => (
         <RowLinkNav to={`/company/${companySlug(n.company)}`}>
           <span style={{ display: "block", fontWeight: 500 }} className="truncate">
@@ -77,6 +78,7 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       key: "event_type",
       header: "Type",
       sortable,
+      hideBelow: "sm",
       render: (n) => {
         if (!n.event_type) return <span style={{ color: "var(--dk-faint)" }}>--</span>;
         const ep = eventPill(n.event_type);
@@ -97,6 +99,7 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       key: "city",
       header: "City",
       sortable,
+      hideBelow: "sm",
       render: (n) => <span style={{ color: "var(--dk-muted)" }}>{n.city ?? "--"}</span>,
     },
     { key: "num_affected", header: "Workers", align: "right", sortable, render: (n) => fmtCompact(n.num_affected) },
@@ -105,6 +108,7 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       header: "Filed",
       align: "right",
       sortable,
+      hideBelow: "sm",
       render: (n) => <span style={{ color: "var(--dk-muted)", whiteSpace: "nowrap" }}>{fmtDate(n.received_date)}</span>,
     },
     {
@@ -112,11 +116,12 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       header: "Effective",
       align: "right",
       sortable,
+      hideBelow: "sm",
       render: (n) => (
         <span style={{ color: "var(--dk-muted)", whiteSpace: "nowrap" }}>{fmtDate(n.effective_date)}</span>
       ),
     },
-    { key: "source", header: "Source", align: "right", render: (n) => <SourceLink state={n.state} /> },
+    { key: "source", header: "Source", align: "right", hideBelow: "sm", render: (n) => <SourceLink state={n.state} /> },
   ];
 
   const visible = compact

@@ -24,18 +24,14 @@ export default function BiggestThisYear({ notices, year, limit = 10 }) {
       key: "company",
       header: "Company",
       clamp: true,
-      render: (n) => {
-        const ep = eventPill(n.event_type);
-        return (
-          <span className="flex items-center gap-2 min-w-0">
-            <RowLinkNav to={`/company/${companySlug(n.company)}`}>
-              <span style={{ fontWeight: 500 }} className="truncate">{n.company}</span>
-            </RowLinkNav>
-            <Pill tone={ep.tone}>{ep.label}</Pill>
-          </span>
-        );
-      },
+      width: "34%",
+      render: (n) => (
+        <RowLinkNav to={`/company/${companySlug(n.company)}`}>
+          <span style={{ fontWeight: 500 }}>{n.company}</span>
+        </RowLinkNav>
+      ),
     },
+    { key: "type", header: "Type", hideBelow: "sm", render: (n) => { const known = ["closure","mass_layoff","relocation","amendment","extension"].includes(n.event_type); if (!known) return <span style={{ color: "var(--dk-faint)" }}>--</span>; const ep = eventPill(n.event_type); return <Pill tone={ep.tone}>{ep.label}</Pill>; } },
     { key: "state", header: "State", hideBelow: "sm", render: (n) => <Link to={`/state/${n.state}`}>{n.state}</Link> },
     { key: "city", header: "City", hideBelow: "sm", render: (n) => <span style={{ color: "var(--dk-muted)" }}>{n.city ?? "--"}</span> },
     { key: "workers", header: "Workers", align: "right", render: (n) => <strong>{fmtCompact(n.num_affected)}</strong> },

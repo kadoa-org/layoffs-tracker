@@ -10,6 +10,7 @@ export default function TopList({ items, getHref, primary, secondary, tertiaryLa
       key: "name",
       header: "Name",
       clamp: true,
+      width: "55%",
       render: (it) => (
         <RowLinkNav to={getHref(it)}>
           <span style={{ fontWeight: 500 }} className="truncate">{primary(it)}</span>

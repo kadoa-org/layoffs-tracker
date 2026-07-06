@@ -66,6 +66,7 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       header: "Company",
       sortable,
       clamp: true,
+      width: "28%",
       render: (n) => (
         <RowLinkNav to={`/company/${companySlug(n.company)}`}>
           <span style={{ display: "block", fontWeight: 500 }} className="truncate">
@@ -80,7 +81,8 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       sortable,
       hideBelow: "sm",
       render: (n) => {
-        if (!n.event_type) return <span style={{ color: "var(--dk-faint)" }}>--</span>;
+        const known = ["closure","mass_layoff","relocation","amendment","extension"].includes(n.event_type);
+        if (!known) return <span style={{ color: "var(--dk-faint)" }}>--</span>;
         const ep = eventPill(n.event_type);
         return <Pill tone={ep.tone}>{ep.label}</Pill>;
       },

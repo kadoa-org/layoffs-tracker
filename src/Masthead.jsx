@@ -57,6 +57,11 @@ export default function Masthead() {
       <SiteHeader
         brand="📉 US Layoffs Tracker"
         LinkComponent={Link}
+        brandSuffix={
+          <a href="https://www.kadoa.com" target="_blank" rel="noreferrer" className="dk-header-link">
+            by Kadoa
+          </a>
+        }
         right={
           <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LiveBadge>{freshness(generatedAt)}</LiveBadge>

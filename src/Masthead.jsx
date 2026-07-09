@@ -74,15 +74,6 @@ export default function Masthead() {
             <Button inverse onClick={() => setSearchOpen(true)} aria-label="Search">
               Search {isMac ? "⌘K" : "Ctrl+K"}
             </Button>
-            <a
-              className="dk-btn dk-btn--brand"
-              href="https://www.kadoa.com/contact"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: "none" }}
-            >
-              Book a demo
-            </a>
           </span>
         }
       />

@@ -31,6 +31,13 @@ const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+// BreadcrumbList JSON-LD from [label, absoluteUrl] pairs (Home › Section › entity).
+const crumbLd = (crumbs) => ({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: crumbs.map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item })),
+});
+
 // Must mirror companySlug in src/ui.jsx exactly so prerendered URLs match
 // the client router's links.
 function companySlug(name) {
@@ -155,6 +162,11 @@ function buildRoutes() {
         creator: { "@type": "Organization", name: "Kadoa", url: "https://www.kadoa.com" },
         license: "https://creativecommons.org/licenses/by/4.0/",
       },
+      crumbs: [
+        ["Home", `${BASE}/`],
+        ["States", `${BASE}/states`],
+        [full, `${BASE}/state/${s.state}`],
+      ],
     });
   }
 
@@ -169,6 +181,11 @@ function buildRoutes() {
       description: `${c.name} has filed ${fmtInt(c.notices)} WARN notices affecting ${fmtInt(c.workers)} workers in ${fmtInt(c.states)} state${c.states === 1 ? "" : "s"} (${(c.first_filed ?? "").slice(0, 4)} to ${(c.last_filed ?? "").slice(0, 4)}).`,
       h1: `${c.name} Layoffs & WARN Notices`,
       body: `<p>${esc(c.name)} has filed ${fmtInt(c.notices)} WARN Act notices affecting ${fmtInt(c.workers)} workers in ${fmtInt(c.states)} state${c.states === 1 ? "" : "s"}, from ${esc((c.first_filed ?? "").slice(0, 4))} to ${esc((c.last_filed ?? "").slice(0, 4))}.</p>`,
+      crumbs: [
+        ["Home", `${BASE}/`],
+        ["Companies", `${BASE}/companies`],
+        [c.name, `${BASE}/company/${slug}`],
+      ],
     });
   }
 
@@ -187,11 +204,10 @@ function renderRoute(template, route) {
     .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${esc(route.title)}$2`)
     .replace(/(<meta\s+name="twitter:description"\s+content=")[^"]*(")/s, `$1${esc(route.description)}$2`);
 
-  if (route.jsonLd) {
-    html = html.replace(
-      "</head>",
-      `<script type="application/ld+json">${JSON.stringify(route.jsonLd)}</script></head>`,
-    );
+  const schemas = [route.jsonLd, route.crumbs && crumbLd(route.crumbs)].filter(Boolean);
+  if (schemas.length) {
+    const tags = schemas.map((s) => `<script type="application/ld+json">${JSON.stringify(s)}</script>`).join("");
+    html = html.replace("</head>", `${tags}</head>`);
   }
   if (route.h1) {
     html = html.replace(

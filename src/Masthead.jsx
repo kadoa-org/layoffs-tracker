@@ -55,12 +55,7 @@ export default function Masthead() {
   return (
     <>
       <SiteHeader
-        brand={
-          <span className="dk-brand-lockup">
-            <img src={`${import.meta.env.BASE_URL}kadoa-icon.svg`} alt="Kadoa" width="18" height="18" />
-            US Layoffs Tracker
-          </span>
-        }
+        brand="📉 US Layoffs Tracker"
         LinkComponent={Link}
         brandSuffix={
           <a href="https://www.kadoa.com" target="_blank" rel="noreferrer" className="dk-header-link">

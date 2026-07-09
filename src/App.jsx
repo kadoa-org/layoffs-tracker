@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { SiteFooter } from "./kit";
 import Masthead from "./Masthead";
 import AboutPage from "./pages/AboutPage";
 import CompaniesPage from "./pages/CompaniesPage";
@@ -86,6 +87,7 @@ export default function App() {
       {route.name === "company" && <CompanyPage slug={route.slug} db={db} />}
       {route.name === "state" && <StatePage code={route.code} db={db} />}
       {route.name === "about" && <AboutPage />}
+      <SiteFooter current="layoffs" />
     </div>
   );
 }

@@ -67,6 +67,22 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [route.name, route.slug, route.code]);
 
+  // Self-referencing canonical for every route. prerender.mjs emits correct
+  // canonicals for the top-1500 prerendered company pages, but the long-tail
+  // companies (28k total, capped for quality/build size) are client-rendered
+  // from index.html — whose static canonical points at the homepage. Without
+  // this, any long-tail /company/:slug that gets crawled would canonicalise to
+  // the home page and be dropped. Re-point it at the current URL on every route.
+  useEffect(() => {
+    let link = document.head.querySelector('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "canonical";
+      document.head.appendChild(link);
+    }
+    link.href = `${window.location.origin}${window.location.pathname}`;
+  }, [route.name, route.slug, route.code]);
+
   if (needsDb && error) return <ErrorScreen error={error} />;
   if (needsDb && (loading || !db)) {
     return (

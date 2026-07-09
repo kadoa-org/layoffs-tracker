@@ -55,7 +55,12 @@ export default function Masthead() {
   return (
     <>
       <SiteHeader
-        brand="📉 US Layoffs Tracker"
+        brand={
+          <span className="dk-brand-lockup">
+            <img src={`${import.meta.env.BASE_URL}kadoa-icon.svg`} alt="Kadoa" width="18" height="18" />
+            US Layoffs Tracker
+          </span>
+        }
         LinkComponent={Link}
         brandSuffix={
           <a href="https://www.kadoa.com" target="_blank" rel="noreferrer" className="dk-header-link">
@@ -69,6 +74,15 @@ export default function Masthead() {
             <Button inverse onClick={() => setSearchOpen(true)} aria-label="Search">
               Search {isMac ? "⌘K" : "Ctrl+K"}
             </Button>
+            <a
+              className="dk-btn dk-btn--brand"
+              href="https://www.kadoa.com/contact"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none" }}
+            >
+              Book a demo
+            </a>
           </span>
         }
       />

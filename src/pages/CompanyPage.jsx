@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import NoticesTable from "../components/NoticesTable";
 import {
   Card,
-  companySlug,
   DownloadCsvButton,
   downloadCsv,
   fmtCompact,
@@ -17,24 +16,20 @@ import { query } from "../useDatabase";
 
 export default function CompanyPage({ slug, db }) {
   const [sort, setSort] = useState("-received_date");
-  // Pull every notice that hashes to this slug. We can't index on the slug
-  // directly so we filter by canonical company name patterns.
-  // Strategy: candidate-match by name fragment, then filter by canonical slug
-  // in JS. This keeps SQL simple and covers DBA/Inc/LLC variants of the same
-  // brand without needing a separate index.
+  // Every notice carries a precomputed `slug` column (build-db.js runs the same
+  // companySlug fn), indexed for exact lookup. This covers DBA/Inc/LLC variants
+  // of the same brand and — unlike a prefix scan derived from the slug — matches
+  // names whose punctuation is stripped ("AT&T" -> "att").
   const filtered = useMemo(() => {
     if (!slug) return [];
-    // Try a first-letter prefix to narrow the scan
-    const firstChars = slug.replace(/-/g, " ").trim().slice(0, 3).toLowerCase();
-    const candidates = query(
+    return query(
       db,
       `SELECT id, state, company, city, county, num_affected,
               received_date, effective_date, event_type
        FROM notices
-       WHERE lower(company) LIKE ?`,
-      [`${firstChars}%`],
+       WHERE slug = ?`,
+      [slug],
     );
-    return candidates.filter((n) => companySlug(n.company) === slug);
   }, [db, slug]);
 
   const totals = useMemo(() => {
@@ -71,7 +66,9 @@ export default function CompanyPage({ slug, db }) {
           </Link>{" "}
           /
         </p>
-        <h1 className="dk-h1" style={{ marginBottom: 2 }}>{name}</h1>
+        <h1 className="dk-h1" style={{ marginBottom: 2 }}>
+          {name}
+        </h1>
       </div>
       <Card className="mb-8 overflow-hidden">
         <StatGrid

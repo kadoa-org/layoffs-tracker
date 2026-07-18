@@ -6,9 +6,10 @@
  * unique head tags + a crawler-visible content block, plus sitemap.xml and
  * robots.txt. Pure string templating from public/data/*.json - no browser.
  *
- * Company pages are capped at the top 1,500 by workers affected: the long
- * tail of 26k companies is mostly single-notice rows that would bloat the
- * sitemap without ranking for anything.
+ * Every company gets a prerendered page and a sitemap entry so Googlebot can
+ * discover the full site (28k+ companies) without executing JS or crawling the
+ * client-only /companies search. Each page carries a unique title/description
+ * and an <h1> + summary paragraph.
  *
  * Usage: node scripts/prerender.mjs   (wired into `npm run build`)
  */
@@ -16,13 +17,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { companySlug } from "../src/slug.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist", "layoffs"); // vite outDir (site lives under /layoffs/)
 const DATA = path.join(ROOT, "public", "data");
 const PREFIX = "/layoffs"; // public path prefix behind the www.kadoa.com reverse proxy
 const BASE = `https://www.kadoa.com${PREFIX}`;
-const TOP_COMPANIES = 1500;
 
 const esc = (s) =>
   String(s ?? "")
@@ -37,20 +38,6 @@ const crumbLd = (crumbs) => ({
   "@type": "BreadcrumbList",
   itemListElement: crumbs.map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item })),
 });
-
-// Must mirror companySlug in src/ui.jsx exactly so prerendered URLs match
-// the client router's links.
-function companySlug(name) {
-  if (!name) return "unknown";
-  return name
-    .toLowerCase()
-    .replace(/\b(inc|llc|corp|corporation|ltd|lp|llp|co|company|the)\b\.?/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 60);
-}
 
 const STATE_NAMES = {
   AL: "Alabama",
@@ -114,8 +101,7 @@ function loadJson(name) {
 
 function buildRoutes() {
   const states = loadJson("states.json");
-  const companiesRaw = loadJson("companies.json");
-  const companies = [...companiesRaw].sort((a, b) => (b.workers ?? 0) - (a.workers ?? 0)).slice(0, TOP_COMPANIES);
+  const companies = loadJson("companies.json");
   const routes = [];
 
   routes.push(

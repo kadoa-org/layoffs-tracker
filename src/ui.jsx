@@ -1,7 +1,7 @@
 // Reusable primitives. Linear.app sizing: 18px root, 0.9375rem body.
 import React from "react";
-import { navigate, withBase } from "./router";
 import { Tag as DkTag } from "./kit";
+import { navigate, withBase } from "./router";
 
 export const TABLE_HEADER_CLS = "text-mini font-medium text-ink_muted";
 export const TABLE_ZEBRA_CLS = "[&>*:nth-child(even)]:bg-muted/30";
@@ -134,7 +134,15 @@ export function fmtDate(iso) {
 // Categorical chip. Lightly-rounded squares, regular weight, translucent backgrounds.
 export function Pill({ tone = "neutral", children }) {
   // Alias onto the kit Tag — one tag implementation across micropages.
-  const map = { neutral: "grey", blue: "blue", violet: "purple", amber: "orange", buy: "green", sell: "red", warn: "yellow" };
+  const map = {
+    neutral: "grey",
+    blue: "blue",
+    violet: "purple",
+    amber: "orange",
+    buy: "green",
+    sell: "red",
+    warn: "yellow",
+  };
   return <DkTag tone={map[tone] || "grey"}>{children}</DkTag>;
 }
 
@@ -187,7 +195,6 @@ export function SectionHeader({ title, subtitle, right }) {
   );
 }
 
-
 export function PropertyLabel({ children, className = "" }) {
   return <div className={`text-mini text-ink_muted ${className}`}>{children}</div>;
 }
@@ -239,19 +246,9 @@ export function Segmented({ value, onChange, options, size = "default" }) {
   );
 }
 
-// Make a URL-safe company slug. Strips Inc/LLC/Corp/Ltd noise so links stay
-// stable across filings of the same parent entity.
-export function companySlug(name) {
-  if (!name) return "unknown";
-  return name
-    .toLowerCase()
-    .replace(/\b(inc|llc|corp|corporation|ltd|lp|llp|co|company|the)\b\.?/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 60);
-}
+// Re-exported from the shared slug module so the client and the build scripts
+// stay byte-identical. See src/slug.js.
+export { companySlug } from "./slug";
 
 // ── CSV export ────────────────────────────────────────────────────────────────
 // The dataset is open, so every view offers a download of exactly what's shown.
@@ -298,11 +295,7 @@ export function downloadCsv(filename, csv) {
 // download will contain, so users know it's the full filtered set, not a page.
 export function DownloadCsvButton({ onClick, count }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="dk-btn"
-    >
+    <button type="button" onClick={onClick} className="dk-btn">
       <svg
         width="13"
         height="13"

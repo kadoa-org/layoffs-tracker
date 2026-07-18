@@ -23,6 +23,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import initSqlJs from "sql.js";
+import { companySlug } from "../src/slug.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "public", "data");
@@ -122,7 +123,8 @@ async function main() {
       num_affected INTEGER,
       received_date TEXT,
       effective_date TEXT,
-      event_type TEXT
+      event_type TEXT,
+      slug TEXT NOT NULL
     )
   `);
   db.run(`
@@ -193,6 +195,11 @@ async function main() {
   // don't pay the bytes for a runtime workers index.)
   db.run("CREATE INDEX idx_notices_received ON notices(received_date DESC)");
   db.run("CREATE INDEX idx_notices_state ON notices(state)");
+  // Company page looks up every notice for a slug by exact match. Precomputing
+  // the slug (same fn as links/prerender) and indexing it is what makes that
+  // lookup correct — deriving a LIKE prefix from the slug can't match raw names
+  // whose punctuation/suffix is stripped by companySlug (e.g. "AT&T" -> "att").
+  db.run("CREATE INDEX idx_notices_slug ON notices(slug)");
 
   // ── Load JSON ─────────────────────────────────────────────────────────────
   const notices = JSON.parse(readFileSync(join(DATA_DIR, "notices.json"), "utf-8"));
@@ -201,7 +208,7 @@ async function main() {
   const stats = JSON.parse(readFileSync(join(DATA_DIR, "stats.json"), "utf-8"));
 
   // ── Insert notices ────────────────────────────────────────────────────────
-  const noticeStmt = db.prepare("INSERT INTO notices VALUES (?,?,?,?,?,?,?,?,?)");
+  const noticeStmt = db.prepare("INSERT INTO notices VALUES (?,?,?,?,?,?,?,?,?,?)");
   db.run("BEGIN");
   for (const n of notices) {
     noticeStmt.run([
@@ -214,6 +221,7 @@ async function main() {
       n.received_date ?? null,
       n.effective_date ?? null,
       n.event_type ?? null,
+      companySlug(n.company),
     ]);
   }
   db.run("COMMIT");

@@ -6,9 +6,10 @@
  * unique head tags + a crawler-visible content block, plus sitemap.xml and
  * robots.txt. Pure string templating from public/data/*.json - no browser.
  *
- * Company pages are capped at the top 1,500 by workers affected: the long
- * tail of 26k companies is mostly single-notice rows that would bloat the
- * sitemap without ranking for anything.
+ * Every company gets a prerendered page and a sitemap entry so Googlebot can
+ * discover the full site (28k+ companies) without executing JS or crawling the
+ * client-only /companies search. Each page carries a unique title/description
+ * and an <h1> + summary paragraph.
  *
  * Usage: node scripts/prerender.mjs   (wired into `npm run build`)
  */
@@ -16,13 +17,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { companySlug } from "../src/slug.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist", "layoffs"); // vite outDir (site lives under /layoffs/)
 const DATA = path.join(ROOT, "public", "data");
 const PREFIX = "/layoffs"; // public path prefix behind the www.kadoa.com reverse proxy
 const BASE = `https://www.kadoa.com${PREFIX}`;
-const TOP_COMPANIES = 1500;
 
 const esc = (s) =>
   String(s ?? "")
@@ -37,20 +38,6 @@ const crumbLd = (crumbs) => ({
   "@type": "BreadcrumbList",
   itemListElement: crumbs.map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item })),
 });
-
-// Must mirror companySlug in src/ui.jsx exactly so prerendered URLs match
-// the client router's links.
-function companySlug(name) {
-  if (!name) return "unknown";
-  return name
-    .toLowerCase()
-    .replace(/\b(inc|llc|corp|corporation|ltd|lp|llp|co|company|the)\b\.?/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 60);
-}
 
 const STATE_NAMES = {
   AL: "Alabama",
@@ -112,11 +99,64 @@ function loadJson(name) {
   return JSON.parse(fs.readFileSync(path.join(DATA, name), "utf8"));
 }
 
+const plural = (n, word) => `${fmtInt(n)} ${word}${n === 1 ? "" : "s"}`;
+
+// A crawler-visible notices table. This is the substantive, unique content that
+// keeps company pages from being thin one-line soft-404s: the same notices the
+// live SPA renders, in static HTML.
+const NOTICE_ROWS_CAP = 500; // ponytail: a handful of brands have 300+ filings; cap the page, raise if needed.
+function noticesTable(rows) {
+  const head = "<tr><th>Filed</th><th>Effective</th><th>State</th><th>City</th><th>Workers</th><th>Type</th></tr>";
+  const body = rows
+    .slice(0, NOTICE_ROWS_CAP)
+    .map(
+      (n) =>
+        `<tr><td>${esc(n.received_date ?? "")}</td><td>${esc(n.effective_date ?? "")}</td><td>${esc(n.state ?? "")}</td><td>${esc(n.city ?? "")}</td><td>${esc(fmtInt(n.num_affected ?? 0))}</td><td>${esc(n.event_type ?? "")}</td></tr>`,
+    )
+    .join("");
+  const more =
+    rows.length > NOTICE_ROWS_CAP ? `<p>Showing ${fmtInt(NOTICE_ROWS_CAP)} of ${fmtInt(rows.length)} notices.</p>` : "";
+  return `<table><thead>${head}</thead><tbody>${body}</tbody></table>${more}`;
+}
+
 function buildRoutes() {
   const states = loadJson("states.json");
-  const companiesRaw = loadJson("companies.json");
-  const companies = [...companiesRaw].sort((a, b) => (b.workers ?? 0) - (a.workers ?? 0)).slice(0, TOP_COMPANIES);
+  const companies = loadJson("companies.json");
+  const notices = loadJson("notices.json");
   const routes = [];
+
+  // Group notices by slug exactly as the client (companySlug) and DB do, so the
+  // prerendered page matches what the SPA renders after hydration.
+  const noticesBySlug = new Map();
+  for (const n of notices) {
+    const slug = companySlug(n.company);
+    if (!slug || slug === "unknown") continue;
+    if (!noticesBySlug.has(slug)) noticesBySlug.set(slug, []);
+    noticesBySlug.get(slug).push(n);
+  }
+  // Best display name per slug: the companies.json row with the most notices
+  // (several raw canon rows can collapse to one slug, e.g. Boeing / The Boeing Co).
+  const nameBySlug = new Map();
+  for (const c of companies) {
+    const slug = companySlug(c.name);
+    if (!slug || slug === "unknown") continue;
+    const prev = nameBySlug.get(slug);
+    if (!prev || (c.notices ?? 0) > prev.notices) nameBySlug.set(slug, { name: c.name, notices: c.notices ?? 0 });
+  }
+
+  const topCompanies = [...companies].sort((a, b) => (b.workers ?? 0) - (a.workers ?? 0)).slice(0, 100);
+  const companyLinks = topCompanies
+    .map(
+      (c) =>
+        `<li><a href="${PREFIX}/company/${companySlug(c.name)}">${esc(c.name)}</a> — ${plural(c.notices, "notice")}, ${fmtInt(c.workers)} workers</li>`,
+    )
+    .join("");
+  const stateLinks = states
+    .map(
+      (s) =>
+        `<li><a href="${PREFIX}/state/${s.state}">${esc(STATE_NAMES[s.state] ?? s.state)}</a> — ${plural(s.notices, "notice")}</li>`,
+    )
+    .join("");
 
   routes.push(
     {
@@ -124,24 +164,32 @@ function buildRoutes() {
       title: "All WARN Notices - Searchable US Layoff Filings | US Layoffs Tracker",
       description:
         "Every WARN Act notice on file: company, state, workers affected, filing and effective dates. Searchable, sortable, updated daily from state labor departments.",
+      h1: "All WARN Act Notices",
+      body: `<p>Every US WARN Act layoff and plant-closure notice on file — searchable by company, state, workers affected, and filing date, updated daily from state labor departments. Browse <a href="${PREFIX}/companies">by company</a> or <a href="${PREFIX}/states">by state</a>.</p>`,
     },
     {
       path: "/companies",
       title: "Layoffs by Company - WARN Notice History | US Layoffs Tracker",
       description:
-        "WARN notice history for 26,000+ companies: total notices, workers affected, states, and filing dates back to 1987.",
+        "WARN notice history for 28,000+ companies: total notices, workers affected, states, and filing dates back to 1987.",
+      h1: "Layoffs by Company",
+      body: `<p>WARN notice history for ${fmtInt(companies.length)} companies: total notices, workers affected, states, and filing dates back to 1987. Largest employers by workers affected:</p><ul>${companyLinks}</ul>`,
     },
     {
       path: "/states",
       title: "Layoffs by State - WARN Notices for All Reporting States | US Layoffs Tracker",
       description:
         "WARN Act layoff notices by state: notice counts, workers affected, and coverage windows for 46 reporting states.",
+      h1: "Layoffs by State",
+      body: `<p>WARN Act layoff notices by state — notice counts, workers affected, and coverage windows for every reporting state:</p><ul>${stateLinks}</ul>`,
     },
     {
       path: "/about",
       title: "About the Data - How WARN Act Reporting Works | US Layoffs Tracker",
       description:
         "What the WARN Act requires, which states report, how this open dataset is collected from state labor departments, and its coverage back to 1987.",
+      h1: "About This Data",
+      body: `<p>The Worker Adjustment and Retraining Notification (WARN) Act requires employers to file advance notice of mass layoffs and plant closures. There is no national feed — each state publishes its own notices, which this open dataset collects and normalizes from state labor departments, with coverage back to 1987.</p>`,
     },
   );
 
@@ -170,21 +218,40 @@ function buildRoutes() {
     });
   }
 
-  const seen = new Set();
-  for (const c of companies) {
-    const slug = companySlug(c.name);
-    if (!slug || slug === "unknown" || seen.has(slug)) continue;
-    seen.add(slug);
+  // One page per slug that actually has notices — guarantees every emitted page
+  // is substantive (>=1 notice) and matches the live SPA's slug grouping.
+  for (const [slug, rows] of noticesBySlug) {
+    const name = nameBySlug.get(slug)?.name ?? rows[0].company;
+    const sorted = [...rows].sort((a, b) => (b.received_date ?? "").localeCompare(a.received_date ?? ""));
+    const workers = rows.reduce((acc, n) => acc + (n.num_affected ?? 0), 0);
+    const stateCount = new Set(rows.map((n) => n.state).filter(Boolean)).size;
+    const filed = rows
+      .map((n) => n.received_date)
+      .filter(Boolean)
+      .sort();
+    const firstYear = (filed[0] ?? "").slice(0, 4);
+    const lastYear = (filed[filed.length - 1] ?? "").slice(0, 4);
+    const span =
+      firstYear && lastYear ? (firstYear === lastYear ? ` in ${firstYear}` : `, from ${firstYear} to ${lastYear}`) : "";
     routes.push({
       path: `/company/${slug}`,
-      title: `${c.name} Layoffs - ${fmtInt(c.notices)} WARN Notices | US Layoffs Tracker`,
-      description: `${c.name} has filed ${fmtInt(c.notices)} WARN notices affecting ${fmtInt(c.workers)} workers in ${fmtInt(c.states)} state${c.states === 1 ? "" : "s"} (${(c.first_filed ?? "").slice(0, 4)} to ${(c.last_filed ?? "").slice(0, 4)}).`,
-      h1: `${c.name} Layoffs & WARN Notices`,
-      body: `<p>${esc(c.name)} has filed ${fmtInt(c.notices)} WARN Act notices affecting ${fmtInt(c.workers)} workers in ${fmtInt(c.states)} state${c.states === 1 ? "" : "s"}, from ${esc((c.first_filed ?? "").slice(0, 4))} to ${esc((c.last_filed ?? "").slice(0, 4))}.</p>`,
+      title: `${name} Layoffs - ${plural(rows.length, "WARN Notice")} | US Layoffs Tracker`,
+      description: `${name} has filed ${plural(rows.length, "WARN notice")} affecting ${fmtInt(workers)} workers in ${plural(stateCount, "state")}${span}.`,
+      h1: `${name} Layoffs & WARN Notices`,
+      body: `<p>${esc(name)} has filed ${plural(rows.length, "WARN Act notice")} affecting ${fmtInt(workers)} workers in ${plural(stateCount, "state")}${esc(span)}.</p>${noticesTable(sorted)}`,
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        name: `${name} WARN Act layoff notices`,
+        description: `${name}: ${rows.length} WARN filings, ${workers} workers affected.`,
+        url: `${BASE}/company/${slug}`,
+        creator: { "@type": "Organization", name: "Kadoa", url: "https://www.kadoa.com" },
+        license: "https://creativecommons.org/licenses/by/4.0/",
+      },
       crumbs: [
         ["Home", `${BASE}/`],
         ["Companies", `${BASE}/companies`],
-        [c.name, `${BASE}/company/${slug}`],
+        [name, `${BASE}/company/${slug}`],
       ],
     });
   }

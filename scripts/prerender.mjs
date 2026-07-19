@@ -213,7 +213,7 @@ function buildRoutes() {
     const from = (p - 1) * COMPANIES_PER_PAGE + 1;
     const intro =
       p === 1
-        ? `<p>WARN notice history for ${fmtInt(allCompanies.length)} companies — notices, workers affected, and filing dates back to 1987, ranked by workers affected. Also browse <a href="${PREFIX}/states">by state</a>.</p>`
+        ? `<p>WARN notice history for ${fmtInt(allCompanies.length)} companies — notices, workers affected, and filing dates back to 1987, ranked by workers affected. Also browse <a href="${PREFIX}/notices">all WARN notices</a>, <a href="${PREFIX}/states">by state</a>, or <a href="${PREFIX}/about">about this dataset</a>.</p>`
         : `<p>Companies ${fmtInt(from)}–${fmtInt(from + chunk.length - 1)} of ${fmtInt(allCompanies.length)}, ranked by workers affected.</p>`;
     routes.push({
       path: companiesPath(p),
@@ -281,7 +281,7 @@ function buildRoutes() {
     routes.push({
       path: `/company/${slug}`,
       title: `${name} Layoffs - ${plural(rows.length, "WARN Notice")} | US Layoffs Tracker`,
-      description: `${name} has filed ${plural(rows.length, "WARN notice")} affecting ${fmtInt(workers)} workers in ${plural(stateCount, "state")}${span}.`,
+      description: `${name} has filed ${plural(rows.length, "WARN notice")} affecting ${fmtInt(workers)} workers in ${plural(stateCount, "state")}${span}. See dates, locations, and the full WARN Act filing history.`,
       h1: `${name} Layoffs & WARN Notices`,
       body: `<p>${esc(name)} has filed ${plural(rows.length, "WARN Act notice")} affecting ${fmtInt(workers)} workers in ${plural(stateCount, "state")}${esc(span)}.</p>${noticesTable(sorted)}`,
       jsonLd: {

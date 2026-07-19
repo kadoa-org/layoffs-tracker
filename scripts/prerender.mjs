@@ -144,13 +144,20 @@ function buildRoutes() {
     if (!prev || (c.notices ?? 0) > prev.notices) nameBySlug.set(slug, { name: c.name, notices: c.notices ?? 0 });
   }
 
-  const topCompanies = [...companies].sort((a, b) => (b.workers ?? 0) - (a.workers ?? 0)).slice(0, 100);
-  const companyLinks = topCompanies
-    .map(
-      (c) =>
-        `<li><a href="${PREFIX}/company/${companySlug(c.name)}">${esc(c.name)}</a> — ${plural(c.notices, "notice")}, ${fmtInt(c.workers)} workers</li>`,
-    )
-    .join("");
+  // Full company index (one entry per emitted company page), ranked by workers.
+  // Paginated below so every company page has an incoming internal link — the
+  // fix for the "orphan pages" Site Audit error (companies were sitemap-only).
+  const allCompanies = [...noticesBySlug.entries()]
+    .map(([slug, rows]) => ({
+      slug,
+      name: nameBySlug.get(slug)?.name ?? rows[0].company,
+      notices: rows.length,
+      workers: rows.reduce((a, n) => a + (n.num_affected ?? 0), 0),
+    }))
+    .sort((a, b) => b.workers - a.workers);
+  const COMPANIES_PER_PAGE = 300;
+  const companyPageCount = Math.max(1, Math.ceil(allCompanies.length / COMPANIES_PER_PAGE));
+  const companiesPath = (p) => (p === 1 ? "/companies" : `/companies/${p}`);
   const stateLinks = states
     .map(
       (s) =>
@@ -166,14 +173,6 @@ function buildRoutes() {
         "Every WARN Act notice on file: company, state, workers affected, filing and effective dates. Searchable, sortable, updated daily from state labor departments.",
       h1: "All WARN Act Notices",
       body: `<p>Every US WARN Act layoff and plant-closure notice on file — searchable by company, state, workers affected, and filing date, updated daily from state labor departments. Browse <a href="${PREFIX}/companies">by company</a> or <a href="${PREFIX}/states">by state</a>.</p>`,
-    },
-    {
-      path: "/companies",
-      title: "Layoffs by Company - WARN Notice History | US Layoffs Tracker",
-      description:
-        "WARN notice history for 28,000+ companies: total notices, workers affected, states, and filing dates back to 1987.",
-      h1: "Layoffs by Company",
-      body: `<p>WARN notice history for ${fmtInt(companies.length)} companies: total notices, workers affected, states, and filing dates back to 1987. Largest employers by workers affected:</p><ul>${companyLinks}</ul>`,
     },
     {
       path: "/states",
@@ -192,6 +191,52 @@ function buildRoutes() {
       body: `<p>The Worker Adjustment and Retraining Notification (WARN) Act requires employers to file advance notice of mass layoffs and plant closures. There is no national feed — each state publishes its own notices, which this open dataset collects and normalizes from state labor departments, with coverage back to 1987.</p>`,
     },
   );
+
+  // Paginated company index — links every company page so none are orphaned
+  // (the single biggest Site Audit error). Page 1 lives at /companies; the SPA
+  // router already renders the searchable list for any /companies/* path.
+  for (let p = 1; p <= companyPageCount; p++) {
+    const chunk = allCompanies.slice((p - 1) * COMPANIES_PER_PAGE, p * COMPANIES_PER_PAGE);
+    const links = chunk
+      .map(
+        (c) =>
+          `<li><a href="${PREFIX}/company/${c.slug}">${esc(c.name)}</a> — ${plural(c.notices, "notice")}, ${fmtInt(c.workers)} workers</li>`,
+      )
+      .join("");
+    const nav = [
+      p > 1 ? `<a href="${PREFIX}${companiesPath(p - 1)}">← Previous</a>` : "",
+      `Page ${fmtInt(p)} of ${fmtInt(companyPageCount)}`,
+      p < companyPageCount ? `<a href="${PREFIX}${companiesPath(p + 1)}">Next →</a>` : "",
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    const from = (p - 1) * COMPANIES_PER_PAGE + 1;
+    const intro =
+      p === 1
+        ? `<p>WARN notice history for ${fmtInt(allCompanies.length)} companies — notices, workers affected, and filing dates back to 1987, ranked by workers affected. Also browse <a href="${PREFIX}/states">by state</a>.</p>`
+        : `<p>Companies ${fmtInt(from)}–${fmtInt(from + chunk.length - 1)} of ${fmtInt(allCompanies.length)}, ranked by workers affected.</p>`;
+    routes.push({
+      path: companiesPath(p),
+      title:
+        p === 1
+          ? "Layoffs by Company - WARN Notice History | US Layoffs Tracker"
+          : `Layoffs by Company - Page ${p} of ${companyPageCount} | US Layoffs Tracker`,
+      description:
+        p === 1
+          ? "WARN notice history for 28,000+ companies: total notices, workers affected, states, and filing dates back to 1987."
+          : `US layoff WARN notices by company, page ${p} of ${companyPageCount}, ranked by workers affected.`,
+      h1: p === 1 ? "Layoffs by Company" : `Layoffs by Company — Page ${p}`,
+      body: `${intro}<ul>${links}</ul><nav>${nav}</nav>`,
+      crumbs:
+        p === 1
+          ? undefined
+          : [
+              ["Home", `${BASE}/`],
+              ["Companies", `${BASE}/companies`],
+              [`Page ${p}`, `${BASE}${companiesPath(p)}`],
+            ],
+    });
+  }
 
   for (const s of states) {
     const full = STATE_NAMES[s.state] ?? s.state;

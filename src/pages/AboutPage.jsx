@@ -73,6 +73,22 @@ export default function AboutPage() {
         ))}
       </div>
 
+      <div className="mt-8 max-w-5xl">
+        <Card className="p-5">
+          <p className="text-small text-ink_secondary leading-[1.5]">
+            <a
+              href="https://kadoa.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:underline font-medium"
+            >
+              Kadoa
+            </a>{" "}
+            is the web data layer for finance, providing the most reliable datasets for investors.
+          </p>
+        </Card>
+      </div>
+
       <div className="mt-16 max-w-3xl text-small text-ink_muted">
         <p>
           For informational and research purposes. Data is sourced from public state labor department records and

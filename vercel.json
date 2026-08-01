@@ -8,7 +8,7 @@
           "value": "layoffs.kadoa.com"
         }
       ],
-      "destination": "https://www.kadoa.com/layoffs/",
+      "destination": "https://www.kadoa.com/layoffs",
       "permanent": true
     },
     {

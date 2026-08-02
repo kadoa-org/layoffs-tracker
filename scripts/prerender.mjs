@@ -231,7 +231,7 @@ function buildRoutes() {
         p === 1
           ? undefined
           : [
-              ["Home", `${BASE}/`],
+              ["Home", BASE],
               ["Companies", `${BASE}/companies`],
               [`Page ${p}`, `${BASE}${companiesPath(p)}`],
             ],
@@ -256,7 +256,7 @@ function buildRoutes() {
         license: "https://creativecommons.org/licenses/by/4.0/",
       },
       crumbs: [
-        ["Home", `${BASE}/`],
+        ["Home", BASE],
         ["States", `${BASE}/states`],
         [full, `${BASE}/state/${s.state}`],
       ],
@@ -294,7 +294,7 @@ function buildRoutes() {
         license: "https://creativecommons.org/licenses/by/4.0/",
       },
       crumbs: [
-        ["Home", `${BASE}/`],
+        ["Home", BASE],
         ["Companies", `${BASE}/companies`],
         [name, `${BASE}/company/${slug}`],
       ],
@@ -331,13 +331,19 @@ function renderRoute(template, route) {
     html = html.replace("</head>", `${tags}</head>`);
   }
   if (route.h1) {
-    html = html.replace(
-      /(<div id="root">)(<\/div>)/,
-      (_m, open, close) =>
-        `${open}<main><h1>${esc(route.h1)}</h1>${route.body ?? ""}<p><a href="${PREFIX}/">US Layoffs Tracker home</a></p></main>${close}`,
-    );
+    html = injectRoot(html, route.h1, `${route.body ?? ""}<p><a href="${PREFIX}">US Layoffs Tracker home</a></p>`);
   }
   return html;
+}
+
+// Every prerendered page must ship an <h1> and crawlable links: the SPA shell
+// is an empty <div id="root">, so whatever is not injected here does not exist
+// for a crawler. Link to PREFIX, not PREFIX + "/" — the trailing slash 308s.
+function injectRoot(html, h1, body) {
+  return html.replace(
+    /(<div id="root">)(<\/div>)/,
+    (_m, open, close) => `${open}<main><h1>${esc(h1)}</h1>${body}</main>${close}`,
+  );
 }
 
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
@@ -350,6 +356,38 @@ for (const r of routes) {
   fs.writeFileSync(path.join(dir, "index.html"), renderRoute(template, r));
   written++;
 }
+
+// Homepage: it shipped as the bare SPA shell — no h1, no links — so the only
+// route into the 28k company pages was sitemap.xml, which is why the audit found
+// 6,492 of them with exactly one internal link.
+const stats = loadJson("stats.json");
+const TOP_N = 60; // enough to pass real link equity down without a wall of text
+const topCompanies = [];
+const seenSlug = new Set();
+for (const c of [...loadJson("companies.json")].sort((a, b) => (b.workers ?? 0) - (a.workers ?? 0))) {
+  const slug = companySlug(c.name);
+  if (!slug || slug === "unknown" || seenSlug.has(slug)) continue;
+  seenSlug.add(slug);
+  topCompanies.push({ slug, name: c.name, notices: c.notices ?? 0, workers: c.workers ?? 0 });
+  if (topCompanies.length >= TOP_N) break;
+}
+const homeBody = [
+  `<p>Every US WARN Act layoff and plant-closure notice on file: ${fmtInt(stats.totalNotices)} notices covering ${fmtInt(stats.totalWorkers)} affected workers at ${fmtInt(stats.totalCompanies)} companies across ${stats.totalStates} reporting states, from ${stats.earliestYear} to ${stats.latestYear}. Collected daily from state labor departments.</p>`,
+  `<p>Browse <a href="${PREFIX}/notices">all WARN notices</a>, <a href="${PREFIX}/companies">by company</a>, <a href="${PREFIX}/states">by state</a>, or read <a href="${PREFIX}/about">about this data</a>.</p>`,
+  `<h2>Largest layoffs by company</h2><ul>${topCompanies
+    .map(
+      (c) =>
+        `<li><a href="${PREFIX}/company/${esc(c.slug)}">${esc(c.name)}</a> — ${plural(c.notices, "notice")}, ${fmtInt(c.workers)} workers</li>`,
+    )
+    .join("")}</ul><p><a href="${PREFIX}/companies">See all ${fmtInt(stats.totalCompanies)} companies</a></p>`,
+  `<h2>Layoffs by state</h2><ul>${loadJson("states.json")
+    .map(
+      (s) =>
+        `<li><a href="${PREFIX}/state/${esc(s.state)}">${esc(STATE_NAMES[s.state] ?? s.state)}</a> — ${plural(s.notices, "notice")}</li>`,
+    )
+    .join("")}</ul>`,
+].join("");
+fs.writeFileSync(path.join(DIST, "index.html"), injectRoot(template, "US Layoffs Tracker", homeBody));
 
 const today = new Date().toISOString().slice(0, 10);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

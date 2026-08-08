@@ -101,6 +101,18 @@ function loadJson(name) {
 
 const plural = (n, word) => `${fmtInt(n)} ${word}${n === 1 ? "" : "s"}`;
 
+// schema.org/Dataset description must be 50-5000 characters or Google rejects
+// the item outright. Short company names put the old one-liners at 43-49 chars
+// ("Visa: 7 WARN filings, 884 workers affected."), which invalidated 330 items.
+// Fail the build rather than ship markup Google will throw away.
+const DATASET_DESC_MIN = 50;
+const datasetDesc = (text, label) => {
+  if (text.length < DATASET_DESC_MIN) {
+    throw new Error(`Dataset description for ${label} is ${text.length} chars, needs >= ${DATASET_DESC_MIN}: ${text}`);
+  }
+  return text;
+};
+
 // A crawler-visible notices table. This is the substantive, unique content that
 // keeps company pages from being thin one-line soft-404s: the same notices the
 // live SPA renders, in static HTML.
@@ -250,7 +262,10 @@ function buildRoutes() {
         "@context": "https://schema.org",
         "@type": "Dataset",
         name: `${full} WARN Act layoff notices`,
-        description: `WARN notices for ${full}: ${s.notices} filings, ${s.workers} workers affected.`,
+        description: datasetDesc(
+          `Every WARN Act layoff notice filed in ${full}: ${plural(s.notices, "notice")} affecting ${fmtInt(s.workers)} workers across ${plural(s.companies, "company").replace("companys", "companies")}, covering ${s.coverage}. Sourced from ${s.agency} and refreshed daily.`,
+          `state ${s.state}`,
+        ),
         url: `${BASE}/state/${s.state}`,
         creator: { "@type": "Organization", name: "Kadoa", url: "https://www.kadoa.com" },
         license: "https://creativecommons.org/licenses/by/4.0/",
@@ -288,7 +303,10 @@ function buildRoutes() {
         "@context": "https://schema.org",
         "@type": "Dataset",
         name: `${name} WARN Act layoff notices`,
-        description: `${name}: ${rows.length} WARN filings, ${workers} workers affected.`,
+        description: datasetDesc(
+          `Every WARN Act layoff notice filed by ${name}: ${plural(rows.length, "notice")} affecting ${fmtInt(workers)} workers in ${plural(stateCount, "state")}${span}, with filing dates and locations. Sourced from official state WARN filings and refreshed daily.`,
+          `company ${slug}`,
+        ),
         url: `${BASE}/company/${slug}`,
         creator: { "@type": "Organization", name: "Kadoa", url: "https://www.kadoa.com" },
         license: "https://creativecommons.org/licenses/by/4.0/",

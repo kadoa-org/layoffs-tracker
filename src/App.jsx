@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SiteFooter } from "./kit";
 import Masthead from "./Masthead";
 import AboutPage from "./pages/AboutPage";
@@ -6,6 +6,7 @@ import CompaniesPage from "./pages/CompaniesPage";
 import CompanyPage from "./pages/CompanyPage";
 import NoticesPage from "./pages/NoticesPage";
 import OverviewPage from "./pages/OverviewPage";
+import PrerenderShell from "./PrerenderShell";
 import StatePage from "./pages/StatePage";
 import StatesPage from "./pages/StatesPage";
 import { useRoute } from "./router";
@@ -56,12 +57,17 @@ function ErrorScreen({ error }) {
 }
 
 export default function App() {
+  const [clientReady, setClientReady] = useState(false);
   const route = useRoute();
   const needsDb = ROUTES_NEEDING_DB.has(route.name);
   // useDatabase is keyed by `enabled`; the hook itself decides whether to
   // kick off the sql.js + DB fetch. On the Overview/About paths nothing is
   // loaded until the user navigates somewhere that needs it.
   const { db, loading, error } = useDatabase(needsDb);
+
+  useEffect(() => {
+    setClientReady(true);
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -82,6 +88,7 @@ export default function App() {
     link.href = `${window.location.origin}${window.location.pathname}`;
   }, [route.name, route.slug, route.code]);
 
+  if (!clientReady) return <PrerenderShell />;
   if (needsDb && error) return <ErrorScreen error={error} />;
   if (needsDb && (loading || !db)) {
     return (

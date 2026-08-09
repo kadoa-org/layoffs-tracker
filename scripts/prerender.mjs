@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createServer } from "vite";
 import { companySlug } from "../src/slug.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -322,7 +323,7 @@ function buildRoutes() {
   return routes;
 }
 
-function renderRoute(template, route) {
+function renderRoute(template, route, shell) {
   const url = `${BASE}${route.path}`;
   // Use function replacements throughout: values containing `$` + digits would
   // be read as capture-group refs ($1/$2) in a replacement STRING, corrupting
@@ -349,29 +350,47 @@ function renderRoute(template, route) {
     html = html.replace("</head>", `${tags}</head>`);
   }
   if (route.h1) {
-    html = injectRoot(html, route.h1, `${route.body ?? ""}<p><a href="${PREFIX}">US Layoffs Tracker home</a></p>`);
+    html = injectRoot(html, shell, route.h1, `${route.body ?? ""}<p><a href="${PREFIX}">US Layoffs Tracker home</a></p>`);
   }
   return html;
 }
 
-// Every prerendered page must ship an <h1> and crawlable links: the SPA shell
-// is an empty <div id="root">, so whatever is not injected here does not exist
-// for a crawler. Link to PREFIX, not PREFIX + "/" — the trailing slash 308s.
-function injectRoot(html, h1, body) {
+// Ship the same loading shell React hydrates, followed by crawler-visible
+// content outside #root. The shell owns the first viewport; the client removes
+// the SEO block as soon as hydration starts.
+function injectRoot(html, shellMarkup, h1, body) {
   return html.replace(
     /(<div id="root">)(<\/div>)/,
-    (_m, open, close) => `${open}<main><h1>${esc(h1)}</h1>${body}</main>${close}`,
+    (_m, open, close) => `${open}${shellMarkup}${close}<main class="seo-shell"><h1>${esc(h1)}</h1>${body}</main>`,
   );
 }
 
+async function buildShell() {
+  const server = await createServer({
+    configFile: false,
+    root: ROOT,
+    server: { middlewareMode: true, hmr: false },
+    appType: "custom",
+    logLevel: "error",
+    optimizeDeps: { noDiscovery: true },
+  });
+  try {
+    const mod = await server.ssrLoadModule("/src/renderPrerenderShell.jsx");
+    return mod.renderPrerenderShell();
+  } finally {
+    await server.close();
+  }
+}
+
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
+const shell = await buildShell();
 const routes = buildRoutes();
 
 let written = 0;
 for (const r of routes) {
   const dir = path.join(DIST, r.path.slice(1));
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "index.html"), renderRoute(template, r));
+  fs.writeFileSync(path.join(dir, "index.html"), renderRoute(template, r, shell));
   written++;
 }
 
@@ -405,7 +424,7 @@ const homeBody = [
     )
     .join("")}</ul>`,
 ].join("");
-fs.writeFileSync(path.join(DIST, "index.html"), injectRoot(template, "US Layoffs Tracker", homeBody));
+fs.writeFileSync(path.join(DIST, "index.html"), injectRoot(template, shell, "US Layoffs Tracker", homeBody));
 
 const today = new Date().toISOString().slice(0, 10);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

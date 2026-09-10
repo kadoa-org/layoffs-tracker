@@ -4,7 +4,7 @@ import MonthlyTimeline from "../components/MonthlyTimeline";
 import NoticesTable from "../components/NoticesTable";
 import SectorChart from "../components/SectorChart";
 import StatRail from "../components/StatRail";
-import { navigate } from "../router";
+import { useNavigate } from "../router";
 import { Link, SectionHeader } from "../ui";
 
 // The map ships ~50KB gz of d3-geo + US geometry. Code-split it so the landing
@@ -38,26 +38,11 @@ function useOverview() {
   return { data, error };
 }
 
-export default function OverviewPage() {
+export default function OverviewPage({ pendingContent }) {
+  const navigate = useNavigate();
   const { data, error } = useOverview();
 
-  if (error) {
-    return (
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8">
-        <p className="text-small text-ink_muted">Could not load overview: {String(error.message ?? error)}</p>
-      </div>
-    );
-  }
-  if (!data) {
-    return (
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-10 animate-pulse">
-        <div className="h-10 w-3/4 bg-muted rounded mb-3" />
-        <div className="h-4 w-2/3 bg-muted rounded mb-8" />
-        <div className="h-24 w-full bg-muted/40 rounded mb-8" />
-        <div className="h-[520px] w-full bg-muted/30 rounded" />
-      </div>
-    );
-  }
+  if (error || !data) return pendingContent(error);
 
   const { stats, timeline, topLayoffs, leaderboardTotals, recent, stateStats, mapWindow, sectors, sectorsClassified } =
     data;

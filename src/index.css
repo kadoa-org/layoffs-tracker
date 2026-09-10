@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.seo-shell { max-width: 1440px; margin: 0 auto; padding: 32px 24px 64px; overflow-x: auto; }
+.seo-shell h1 { font-size: 2rem; font-weight: 600; margin-bottom: 16px; }
+.seo-shell h2 { font-size: 1.35rem; font-weight: 600; margin: 24px 0 12px; }
+.seo-shell p, .seo-shell ul, .seo-shell nav { margin-bottom: 16px; }
+.seo-shell a { color: #1d70b8; text-decoration: underline; }
+.seo-shell table { width: 100%; margin: 20px 0; font-size: 0.875rem; }
+.seo-shell th, .seo-shell td { text-align: left; padding: 8px; border-bottom: 1px solid #b1b4b6; }
+
 /* Linear.app parity */
 :root {
   color-scheme: light;

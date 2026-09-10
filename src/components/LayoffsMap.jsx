@@ -2,7 +2,7 @@ import { geoAlbersUsa, geoPath } from "d3-geo";
 import React, { useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import statesTopo from "us-atlas/states-10m.json";
-import { navigate } from "../router";
+import { useNavigate } from "../router";
 import { fmtInt, Link } from "../ui";
 
 // Proportional-symbol map of WARN layoffs by state. Bubbles are area-scaled to
@@ -75,6 +75,7 @@ const FIPS_TO_USPS = {
 };
 
 export default function LayoffsMap({ stateStats, window: win }) {
+  const navigate = useNavigate();
   const [hover, setHover] = useState(null);
   const containerRef = useRef(null);
   const [width, setWidth] = useState(WIDTH);

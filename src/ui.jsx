@@ -1,7 +1,7 @@
 // Reusable primitives. Linear.app sizing: 18px root, 0.9375rem body.
 import React from "react";
 import { Tag as DkTag } from "./kit";
-import { navigate, withBase } from "./router";
+import { useNavigate, withBase } from "./router";
 
 export const TABLE_HEADER_CLS = "text-mini font-medium text-ink_muted";
 export const TABLE_ZEBRA_CLS = "[&>*:nth-child(even)]:bg-muted/30";
@@ -161,18 +161,22 @@ export function statePill(state) {
   return { tone: "neutral", label: state };
 }
 
-export function Link({ to, className = "", children, onClick, ...rest }) {
+export function Link({ to, href, className = "", children, onClick, ...rest }) {
+  const navigate = useNavigate();
+  const destination = to ?? href;
   return (
     <a
-      href={withBase(to)}
+      {...rest}
+      href={withBase(destination)}
       className={`dk-link ${className}`}
       onClick={(e) => {
-        if (e.metaKey || e.ctrlKey || e.shiftKey) return;
-        e.preventDefault();
         onClick?.(e);
-        navigate(to);
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0
+          || (rest.target && rest.target !== "_self") || rest.download != null
+          || !destination.startsWith("/") || destination.startsWith("//")) return;
+        e.preventDefault();
+        navigate(destination);
       }}
-      {...rest}
     >
       {children}
     </a>
@@ -315,6 +319,7 @@ export function DownloadCsvButton({ onClick, count }) {
 // SPA row link: real <a href> (cmd/ctrl-click works) that routes client-side
 // on plain clicks. Used for primary cells inside kit DataTables.
 export function RowLinkNav({ to, children }) {
+  const navigate = useNavigate();
   return (
     <a
       href={withBase(to)}

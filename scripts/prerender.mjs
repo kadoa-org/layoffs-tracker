@@ -4,21 +4,22 @@
  * homepage HTML and deep pages (states, companies) are invisible to search
  * engines. Runs after `vite build`, writes dist/<route>/index.html with
  * unique head tags + a crawler-visible content block, plus sitemap.xml and
- * robots.txt. Pure string templating from public/data/*.json - no browser.
+ * robots.txt. String templating from the published JSON and SQLite data, without a browser.
  *
  * Every company gets a prerendered page and a sitemap entry so Googlebot can
  * discover the full site (28k+ companies) without executing JS or crawling the
  * client-only /companies search. Each page carries a unique title/description
  * and an <h1> + summary paragraph.
  *
- * Usage: node scripts/prerender.mjs   (wired into `npm run build`)
+ * Usage: bun scripts/prerender.mjs   (wired into `bun run build`)
  */
 
 import fs from "node:fs";
+import initSqlJs from "sql.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createServer } from "vite";
 import { companySlug } from "../src/slug.js";
+import { readCompanyDirectory, COMPANIES_PER_PAGE, companiesPath } from "../src/companyDirectory.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist", "layoffs"); // vite outDir (site lives under /layoffs/)
@@ -132,7 +133,7 @@ function noticesTable(rows) {
   return `<table><thead>${head}</thead><tbody>${body}</tbody></table>${more}`;
 }
 
-function buildRoutes() {
+async function buildRoutes() {
   const states = loadJson("states.json");
   const companies = loadJson("companies.json");
   const notices = loadJson("notices.json");
@@ -160,17 +161,11 @@ function buildRoutes() {
   // Full company index (one entry per emitted company page), ranked by workers.
   // Paginated below so every company page has an incoming internal link — the
   // fix for the "orphan pages" Site Audit error (companies were sitemap-only).
-  const allCompanies = [...noticesBySlug.entries()]
-    .map(([slug, rows]) => ({
-      slug,
-      name: nameBySlug.get(slug)?.name ?? rows[0].company,
-      notices: rows.length,
-      workers: rows.reduce((a, n) => a + (n.num_affected ?? 0), 0),
-    }))
-    .sort((a, b) => b.workers - a.workers);
-  const COMPANIES_PER_PAGE = 300;
+  const SQL = await initSqlJs();
+  const db = new SQL.Database(fs.readFileSync(path.join(DATA, "layoffs.db")));
+  const allCompanies = readCompanyDirectory(db);
+  db.close();
   const companyPageCount = Math.max(1, Math.ceil(allCompanies.length / COMPANIES_PER_PAGE));
-  const companiesPath = (p) => (p === 1 ? "/companies" : `/companies/${p}`);
   const stateLinks = states
     .map(
       (s) =>
@@ -205,9 +200,8 @@ function buildRoutes() {
     },
   );
 
-  // Paginated company index — links every company page so none are orphaned
-  // (the single biggest Site Audit error). Page 1 lives at /companies; the SPA
-  // router already renders the searchable list for any /companies/* path.
+  // Page 1 retains /companies; later pages use the same 300-row partitions
+  // as the interactive directory.
   for (let p = 1; p <= companyPageCount; p++) {
     const chunk = allCompanies.slice((p - 1) * COMPANIES_PER_PAGE, p * COMPANIES_PER_PAGE);
     const links = chunk
@@ -323,7 +317,7 @@ function buildRoutes() {
   return routes;
 }
 
-function renderRoute(template, route, shell) {
+function renderRoute(template, route) {
   const url = `${BASE}${route.path}`;
   // Use function replacements throughout: values containing `$` + digits would
   // be read as capture-group refs ($1/$2) in a replacement STRING, corrupting
@@ -350,47 +344,28 @@ function renderRoute(template, route, shell) {
     html = html.replace("</head>", `${tags}</head>`);
   }
   if (route.h1) {
-    html = injectRoot(html, shell, route.h1, `${route.body ?? ""}<p><a href="${PREFIX}">US Layoffs Tracker home</a></p>`);
+    html = injectRoot(html, route.path, route.h1, `${route.body ?? ""}<p><a href="${PREFIX}">US Layoffs Tracker home</a></p>`);
   }
   return html;
 }
 
-// Ship the same loading shell React hydrates, followed by crawler-visible
-// content outside #root. The shell owns the first viewport; the client removes
-// the SEO block as soon as hydration starts.
-function injectRoot(html, shellMarkup, h1, body) {
+// React hydrates the published answer and keeps it until this route's data
+// is ready. No separate crawler-only block is removed during startup.
+function injectRoot(html, routePath, h1, body) {
   return html.replace(
     /(<div id="root">)(<\/div>)/,
-    (_m, open, close) => `${open}${shellMarkup}${close}<main class="seo-shell"><h1>${esc(h1)}</h1>${body}</main>`,
+    (_m, open, close) => `${open}<div data-published-page="${esc(PREFIX + routePath)}"><main class="seo-shell"><h1>${esc(h1)}</h1>${body}</main></div>${close}`,
   );
 }
 
-async function buildShell() {
-  const server = await createServer({
-    configFile: false,
-    root: ROOT,
-    server: { middlewareMode: true, hmr: false },
-    appType: "custom",
-    logLevel: "error",
-    optimizeDeps: { noDiscovery: true },
-  });
-  try {
-    const mod = await server.ssrLoadModule("/src/renderPrerenderShell.jsx");
-    return mod.renderPrerenderShell();
-  } finally {
-    await server.close();
-  }
-}
-
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
-const shell = await buildShell();
-const routes = buildRoutes();
+const routes = await buildRoutes();
 
 let written = 0;
 for (const r of routes) {
   const dir = path.join(DIST, r.path.slice(1));
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "index.html"), renderRoute(template, r, shell));
+  fs.writeFileSync(path.join(dir, "index.html"), renderRoute(template, r));
   written++;
 }
 
@@ -424,7 +399,7 @@ const homeBody = [
     )
     .join("")}</ul>`,
 ].join("");
-fs.writeFileSync(path.join(DIST, "index.html"), injectRoot(template, shell, "US Layoffs Tracker", homeBody));
+fs.writeFileSync(path.join(DIST, "index.html"), injectRoot(template, "", "US Layoffs Tracker", homeBody));
 
 const today = new Date().toISOString().slice(0, 10);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

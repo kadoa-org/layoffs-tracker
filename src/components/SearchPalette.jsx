@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { navigate } from "../router";
+import { useNavigate } from "../router";
 import { companySlug, fmtCompact } from "../ui";
 
 // All 50 + DC for navigation. State coverage gating happens on the State page.
@@ -85,6 +85,7 @@ function loadCompanies() {
 // page jumps at top, fuzzy-filters companies + states, group headers, badge
 // icons per row, kbd hints in the footer.
 export default function SearchPalette({ open, onClose }) {
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [idx, setIdx] = useState(0);
   const [companies, setCompanies] = useState(companiesCache);
@@ -173,7 +174,7 @@ export default function SearchPalette({ open, onClose }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, items, idx, onClose]);
+  }, [open, items, idx, onClose, navigate]);
 
   useEffect(() => {
     if (!listRef.current) return;

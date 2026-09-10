@@ -4,9 +4,10 @@ import App from "./App";
 import "./index.css";
 
 const root = document.getElementById("root");
-const app = <App />;
+const published = root.querySelector("[data-published-page]");
+const matchesRoute = published?.dataset.publishedPage === window.location.pathname.replace(/\/$/, "");
+const initialPage = matchesRoute ? { pathname: published.dataset.publishedPage, html: published.innerHTML } : null;
+const app = <App initialPage={initialPage} />;
 
-if (root.hasChildNodes()) hydrateRoot(root, app);
+if (initialPage) hydrateRoot(root, app);
 else createRoot(root).render(app);
-
-for (const element of document.querySelectorAll(".seo-shell")) element.remove();

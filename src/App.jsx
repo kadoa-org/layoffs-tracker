@@ -7,14 +7,15 @@ import CompanyPage from "./pages/CompanyPage";
 import NoticesPage from "./pages/NoticesPage";
 import OverviewPage from "./pages/OverviewPage";
 import PrerenderShell from "./PrerenderShell";
+import PublishedPage, { DatasetStatus } from "./PublishedPage";
 import StatePage from "./pages/StatePage";
 import StatesPage from "./pages/StatesPage";
-import { useRoute } from "./router";
+import { NavigationContext, navigate, navigateDocument, useRoute } from "./router";
 import { useDatabase } from "./useDatabase";
 
 // Routes that need the full SQLite database. Overview + About render from
 // static JSON (overview.json) and pure markup, so Reddit visitors don't pay
-// the ~6 MB sql.js + DB cost up front.
+// the sql.js + full database download up front.
 const ROUTES_NEEDING_DB = new Set(["notices", "companies", "states", "company", "state"]);
 
 function LoadingScreen() {
@@ -45,18 +46,7 @@ function LoadingScreen() {
   );
 }
 
-function ErrorScreen({ error }) {
-  return (
-    <div className="min-h-screen bg-canvas flex items-center justify-center px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-large font-semibold text-ink mb-2">Could not load the dataset</h1>
-        <p className="text-small text-ink_muted">{String(error?.message ?? error)}</p>
-      </div>
-    </div>
-  );
-}
-
-export default function App() {
+export default function App({ initialPage }) {
   const [clientReady, setClientReady] = useState(false);
   const route = useRoute();
   const needsDb = ROUTES_NEEDING_DB.has(route.name);
@@ -64,6 +54,12 @@ export default function App() {
   // kick off the sql.js + DB fetch. On the Overview/About paths nothing is
   // loaded until the user navigates somewhere that needs it.
   const { db, loading, error } = useDatabase(needsDb);
+  const pathname = window.location.pathname;
+  const publishedPage = initialPage?.pathname === pathname.replace(/\/$/, "") ? initialPage : null;
+  const pendingContent = (loadError) => <>
+    <DatasetStatus error={loadError} hasPublishedPage={!!publishedPage} />
+    {publishedPage && <PublishedPage {...publishedPage} />}
+  </>;
 
   useEffect(() => {
     setClientReady(true);
@@ -71,7 +67,7 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [route.name, route.slug, route.code]);
+  }, [pathname]);
 
   // Self-referencing canonical for every route. prerender.mjs emits correct
   // canonicals for every prerendered page, but any path served the raw
@@ -86,30 +82,33 @@ export default function App() {
       document.head.appendChild(link);
     }
     link.href = `${window.location.origin}${window.location.pathname}`;
-  }, [route.name, route.slug, route.code]);
+  }, [pathname]);
 
-  if (!clientReady) return <PrerenderShell />;
-  if (needsDb && error) return <ErrorScreen error={error} />;
-  if (needsDb && (loading || !db)) {
-    return (
-      <div className="min-h-screen bg-canvas text-ink">
-        <Masthead />
-        <LoadingScreen />
-      </div>
-    );
-  }
+  if (!clientReady) return publishedPage ? <PublishedPage {...publishedPage} /> : <PrerenderShell />;
+  const pending = needsDb && (error || loading || !db);
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <Masthead />
-      {route.name === "overview" && <OverviewPage />}
-      {route.name === "notices" && <NoticesPage db={db} />}
-      {route.name === "companies" && <CompaniesPage db={db} />}
-      {route.name === "states" && <StatesPage db={db} />}
-      {route.name === "company" && <CompanyPage slug={route.slug} db={db} />}
-      {route.name === "state" && <StatePage code={route.code} db={db} />}
-      {route.name === "about" && <AboutPage />}
-      <SiteFooter current="layoffs" />
-    </div>
+    <NavigationContext value={db ? navigate : navigateDocument}>
+      <div className="min-h-screen bg-canvas text-ink">
+        <Masthead />
+        {pending ? (
+          <>
+            {pendingContent(error)}
+            {!publishedPage && !error && <LoadingScreen />}
+          </>
+        ) : (
+          <>
+            {route.name === "overview" && <OverviewPage pendingContent={pendingContent} />}
+            {route.name === "notices" && <NoticesPage db={db} />}
+            {route.name === "companies" && <CompaniesPage db={db} page={route.page} filters={route.query} />}
+            {route.name === "states" && <StatesPage db={db} />}
+            {route.name === "company" && <CompanyPage slug={route.slug} db={db} />}
+            {route.name === "state" && <StatePage code={route.code} db={db} />}
+            {route.name === "about" && <AboutPage />}
+          </>
+        )}
+        <SiteFooter current="layoffs" />
+      </div>
+    </NavigationContext>
   );
 }

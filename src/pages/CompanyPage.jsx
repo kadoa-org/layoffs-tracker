@@ -14,13 +14,14 @@ import {
 } from "../ui";
 import { query } from "../useDatabase";
 
-export default function CompanyPage({ slug, db }) {
+export default function CompanyPage({ slug, db, initialRows }) {
   const [sort, setSort] = useState("-received_date");
   // Every notice carries a precomputed `slug` column (build-db.js runs the same
   // companySlug fn), indexed for exact lookup. This covers DBA/Inc/LLC variants
   // of the same brand and — unlike a prefix scan derived from the slug — matches
   // names whose punctuation is stripped ("AT&T" -> "att").
   const filtered = useMemo(() => {
+    if (initialRows) return initialRows;
     if (!slug) return [];
     return query(
       db,
@@ -30,7 +31,7 @@ export default function CompanyPage({ slug, db }) {
        WHERE slug = ?`,
       [slug],
     );
-  }, [db, slug]);
+  }, [db, slug, initialRows]);
 
   const totals = useMemo(() => {
     const workers = filtered.reduce((acc, n) => acc + (n.num_affected ?? 0), 0);

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SearchPalette from "./components/SearchPalette";
 import { Button, GitHubButton, LiveBadge, NavBar, SiteHeader } from "./kit";
-import { useRoute } from "./router";
 import { Link } from "./ui";
 
 const TABS = [
@@ -12,7 +11,6 @@ const TABS = [
   { to: "/about", label: "About", match: "about" },
 ];
 
-const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
 function freshness(generatedAt) {
   if (!generatedAt) return "Updated daily";
@@ -23,8 +21,7 @@ function freshness(generatedAt) {
 }
 
 // data-kit chrome: brand bar + tab navigation + freshness badge.
-export default function Masthead() {
-  const route = useRoute();
+export default function Masthead({ route }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [generatedAt, setGeneratedAt] = useState(null);
 
@@ -67,7 +64,7 @@ export default function Masthead() {
             <LiveBadge>{freshness(generatedAt)}</LiveBadge>
             <GitHubButton repo="kadoa-org/layoffs-tracker" />
             <Button inverse onClick={() => setSearchOpen(true)} aria-label="Search">
-              Search {isMac ? "⌘K" : "Ctrl+K"}
+              Search
             </Button>
           </span>
         }

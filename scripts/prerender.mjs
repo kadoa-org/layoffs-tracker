@@ -1,20 +1,7 @@
-/**
- * Build-time prerender for SEO. Same approach as congress-trading-monitor:
- * the app is a client-rendered SPA, so without this every route serves the
- * homepage HTML and deep pages (states, companies) are invisible to search
- * engines. Runs after `vite build`, writes dist/<route>/index.html with
- * unique head tags + a crawler-visible content block, plus sitemap.xml and
- * robots.txt. String templating from the published JSON and SQLite data, without a browser.
- *
- * Every company gets a prerendered page and a sitemap entry so Googlebot can
- * discover the full site (28k+ companies) without executing JS or crawling the
- * client-only /companies search. Each page carries a unique title/description
- * and an <h1> + summary paragraph.
- *
- * Usage: bun scripts/prerender.mjs   (wired into `bun run build`)
- */
+// Render real dataset pages with embedded initial data, metadata and crawlable links.
 
 import fs from "node:fs";
+import { createServer } from "vite";
 import initSqlJs from "sql.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -343,19 +330,24 @@ function renderRoute(template, route) {
     const tags = schemas.map((s) => `<script type="application/ld+json">${JSON.stringify(s)}</script>`).join("");
     html = html.replace("</head>", `${tags}</head>`);
   }
-  if (route.h1) {
-    html = injectRoot(html, route.path, route.h1, `${route.body ?? ""}<p><a href="${PREFIX}">US Layoffs Tracker home</a></p>`);
-  }
   return html;
 }
 
-// React hydrates the published answer and keeps it until this route's data
-// is ready. No separate crawler-only block is removed during startup.
-function injectRoot(html, routePath, h1, body) {
-  return html.replace(
-    /(<div id="root">)(<\/div>)/,
-    (_m, open, close) => `${open}<div data-published-page="${esc(PREFIX + routePath)}"><main class="seo-shell"><h1>${esc(h1)}</h1>${body}</main></div>${close}`,
-  );
+const server = await createServer({ configFile: false, root: ROOT, base: "/layoffs/", esbuild: { jsx: "automatic" }, server: { middlewareMode: true, hmr: false }, optimizeDeps: { noDiscovery: true }, logLevel: "error" });
+const { renderPage, parseRoute, readPageData } = await server.ssrLoadModule("/src/renderPage.jsx");
+const SQL = await initSqlJs();
+const renderDb = new SQL.Database(fs.readFileSync(path.join(DATA, "layoffs.db")));
+const overview = loadJson("overview.json");
+const directory = readCompanyDirectory(renderDb);
+overview.topCompanies = directory.slice(0, 60);
+overview.states = loadJson("states.json").map(state => state.state);
+function injectPage(html, routePath) {
+  const pathname = PREFIX + routePath;
+  const route = parseRoute(pathname, "");
+  const data = route.name === "overview" ? overview : route.name === "companies" ? { rows: directory } : readPageData(renderDb, route);
+  const initialPage = { pathname, route, data };
+  const payload = JSON.stringify(initialPage).replace(/</g, "\\u003c");
+  return html.replace('<div id="root"></div>', () => `<div id="root">${renderPage(initialPage)}</div><script id="page-data" type="application/json">${payload}</script>`);
 }
 
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
@@ -365,41 +357,13 @@ let written = 0;
 for (const r of routes) {
   const dir = path.join(DIST, r.path.slice(1));
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "index.html"), renderRoute(template, r));
+  fs.writeFileSync(path.join(dir, "index.html"), injectPage(renderRoute(template, r), r.path));
   written++;
 }
 
-// Homepage: it shipped as the bare SPA shell — no h1, no links — so the only
-// route into the 28k company pages was sitemap.xml, which is why the audit found
-// 6,492 of them with exactly one internal link.
-const stats = loadJson("stats.json");
-const TOP_N = 60; // enough to pass real link equity down without a wall of text
-const topCompanies = [];
-const seenSlug = new Set();
-for (const c of [...loadJson("companies.json")].sort((a, b) => (b.workers ?? 0) - (a.workers ?? 0))) {
-  const slug = companySlug(c.name);
-  if (!slug || slug === "unknown" || seenSlug.has(slug)) continue;
-  seenSlug.add(slug);
-  topCompanies.push({ slug, name: c.name, notices: c.notices ?? 0, workers: c.workers ?? 0 });
-  if (topCompanies.length >= TOP_N) break;
-}
-const homeBody = [
-  `<p>Every US WARN Act layoff and plant-closure notice on file: ${fmtInt(stats.totalNotices)} notices covering ${fmtInt(stats.totalWorkers)} affected workers at ${fmtInt(stats.totalCompanies)} companies across ${stats.totalStates} reporting states, from ${stats.earliestYear} to ${stats.latestYear}. Collected daily from state labor departments.</p>`,
-  `<p>Browse <a href="${PREFIX}/notices">all WARN notices</a>, <a href="${PREFIX}/companies">by company</a>, <a href="${PREFIX}/states">by state</a>, or read <a href="${PREFIX}/about">about this data</a>.</p>`,
-  `<h2>Largest layoffs by company</h2><ul>${topCompanies
-    .map(
-      (c) =>
-        `<li><a href="${PREFIX}/company/${esc(c.slug)}">${esc(c.name)}</a> — ${plural(c.notices, "notice")}, ${fmtInt(c.workers)} workers</li>`,
-    )
-    .join("")}</ul><p><a href="${PREFIX}/companies">See all ${fmtInt(stats.totalCompanies)} companies</a></p>`,
-  `<h2>Layoffs by state</h2><ul>${loadJson("states.json")
-    .map(
-      (s) =>
-        `<li><a href="${PREFIX}/state/${esc(s.state)}">${esc(STATE_NAMES[s.state] ?? s.state)}</a> — ${plural(s.notices, "notice")}</li>`,
-    )
-    .join("")}</ul>`,
-].join("");
-fs.writeFileSync(path.join(DIST, "index.html"), injectRoot(template, "", "US Layoffs Tracker", homeBody));
+fs.writeFileSync(path.join(DIST, "index.html"), injectPage(template, ""));
+renderDb.close();
+await server.close();
 
 const today = new Date().toISOString().slice(0, 10);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

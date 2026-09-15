@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Leaderboard from "../components/Leaderboard";
 import MonthlyTimeline from "../components/MonthlyTimeline";
 import NoticesTable from "../components/NoticesTable";
@@ -9,16 +9,26 @@ import { Link, SectionHeader } from "../ui";
 
 // The map ships ~50KB gz of d3-geo + US geometry. Code-split it so the landing
 // paints from the 7KB overview.json first and the map streams in after.
-const LayoffsMap = lazy(() => import("../components/LayoffsMap"));
+function MapLoader(props) {
+  const [Map, setMap] = useState(null);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    let active = true;
+    import("../components/LayoffsMap").then(module => { if (active) setMap(() => module.default); }).catch(error => { console.error("Layoffs map load failed", error); if (active) setError(error); });
+    return () => { active = false; };
+  }, []);
+  return Map ? <Map {...props} /> : <div className="border border-stroke bg-muted h-[520px] p-4" aria-busy={!error}><p role={error ? "alert" : "status"}>{error ? "Could not load the map." : "Loading map…"}</p></div>;
+}
 
 // The Overview page is the Reddit landing experience. It deliberately doesn't
 // touch sql.js — we fetch a small pre-aggregated JSON (~7 KB gzipped) instead,
 // so the first paint costs ~80 KB on the wire and ~4 MB JS heap. SQLite is
 // loaded only when the user navigates to a deeper page.
-function useOverview() {
-  const [data, setData] = useState(null);
+function useOverview(initialData) {
+  const [data, setData] = useState(initialData ?? null);
   const [error, setError] = useState(null);
   useEffect(() => {
+    if (initialData) return;
     let cancelled = false;
     fetch(`${import.meta.env.BASE_URL}data/overview.json`)
       .then((r) => {
@@ -34,13 +44,13 @@ function useOverview() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialData]);
   return { data, error };
 }
 
-export default function OverviewPage({ pendingContent }) {
+export default function OverviewPage({ pendingContent, initialData }) {
   const navigate = useNavigate();
-  const { data, error } = useOverview();
+  const { data, error } = useOverview(initialData);
 
   if (error || !data) return pendingContent(error);
 
@@ -63,13 +73,11 @@ export default function OverviewPage({ pendingContent }) {
       </section>
 
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
-        <Suspense fallback={<div className="border border-stroke rounded-md bg-panel h-[520px] animate-pulse" />}>
-          <LayoffsMap stateStats={stateStats} window={mapWindow} />
-        </Suspense>
+        <MapLoader stateStats={stateStats} window={mapWindow} />
       </section>
 
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
-        <MonthlyTimeline timeline={timeline} />
+        <MonthlyTimeline timeline={timeline} asOf={stats.generatedAt} />
       </section>
 
       {/* Latest filings sits below the map + timeline so the visual story
@@ -102,7 +110,7 @@ export default function OverviewPage({ pendingContent }) {
             </Link>
           }
         />
-        <Leaderboard topLayoffs={topLayoffs} totals={leaderboardTotals} limit={10} />
+        <Leaderboard asOf={stats.generatedAt} topLayoffs={topLayoffs} totals={leaderboardTotals} limit={10} />
       </section>
 
       {sectors && sectors.length > 0 && (
@@ -111,6 +119,15 @@ export default function OverviewPage({ pendingContent }) {
           <SectorChart sectors={sectors} classified={sectorsClassified} />
         </section>
       )}
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-12">
+        <details><summary>Browse layoffs by state</summary>
+          <ul>{(data.states ?? Object.keys(stateStats)).sort().map(state => <li key={state}><Link to={`/state/${state}`}>{state}</Link></li>)}</ul>
+        </details>
+        {data.topCompanies && <details><summary>Browse major employers</summary>
+          <ul>{data.topCompanies.map(company => <li key={company.slug}><Link to={`/company/${company.slug}`}>{company.name}</Link></li>)}</ul>
+        </details>}
+        <p><Link to="/companies">Browse all companies</Link></p>
+      </section>
     </>
   );
 }

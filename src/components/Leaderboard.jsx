@@ -7,9 +7,9 @@ import { Card, companySlug, eventPill, fmtCompact, fmtDate, fmtInt, Link, Pill, 
 const COLS =
   "grid gap-3 px-4 grid-cols-[24px_1fr_50px_60px] sm:grid-cols-[24px_minmax(0,1.6fr)_88px_48px_minmax(0,1fr)_72px_104px]";
 
-export default function Leaderboard({ topLayoffs, totals, limit = 10 }) {
+export default function Leaderboard({ topLayoffs, totals, limit = 10, asOf }) {
   const [range, setRange] = useState("ytd");
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date(asOf ?? Date.now()).getUTCFullYear();
 
   // `topLayoffs` is { ytd: [...], "12m": [...], all: [...] } — each is the
   // pre-ranked top-25 from the build step. Static, tiny, no DB needed.

@@ -30,6 +30,7 @@ function bucketLabel(key, granularity) {
   return new Date(Date.UTC(Number(y), Number(m) - 1, 1)).toLocaleString("en-US", {
     month: "short",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
@@ -83,16 +84,16 @@ const RANGES = [
   { value: "all", label: "All", granularity: "year" },
 ];
 
-function sinceKeyFor(range, granularity) {
-  const now = new Date();
+function sinceKeyFor(range, granularity, asOf) {
+  const now = new Date(asOf ?? Date.now());
   if (range === "1y") {
     const d = new Date(now);
-    d.setMonth(d.getMonth() - 11);
+    d.setUTCMonth(d.getUTCMonth() - 11);
     return d.toISOString().slice(0, 7);
   }
   if (range === "5y") {
     const d = new Date(now);
-    d.setFullYear(d.getFullYear() - 5);
+    d.setUTCFullYear(d.getUTCFullYear() - 5);
     return d.toISOString().slice(0, 7);
   }
   return null;
@@ -100,14 +101,14 @@ function sinceKeyFor(range, granularity) {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function MonthlyTimeline({ timeline, height = HEIGHT }) {
+export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
   const [width, setWidth] = useState(1200);
   const [range, setRange] = useState("5y");
   const [hoverIdx, setHoverIdx] = useState(null);
   const svgRef = useRef(null);
 
   const cfg = RANGES.find((r) => r.value === range) ?? RANGES[2];
-  const sinceKey = sinceKeyFor(range, cfg.granularity);
+  const sinceKey = sinceKeyFor(range, cfg.granularity, asOf);
   const series = useMemo(() => buildSeries(timeline, cfg.granularity, sinceKey), [timeline, cfg.granularity, sinceKey]);
 
   const containerRef = (el) => {
@@ -176,9 +177,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT }) {
         role="img"
         aria-label={`Workers affected per ${cfg.granularity}. Range: ${cfg.label}. ${fmtInt(focused.workers)} workers in ${bucketLabel(focused.key, cfg.granularity)}.`}
       >
-        <title>
-          Workers affected per {cfg.granularity}, {range} view
-        </title>
+        <title>{`Workers affected per ${cfg.granularity}, ${range} view`}</title>
 
         {/* Y gridlines + labels */}
         {yTicks.map((v, i) => {
@@ -250,7 +249,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT }) {
 
         {/* "Today" marker — only when "today" is on-chart */}
         {(() => {
-          const todayKey = new Date().toISOString().slice(0, cfg.granularity === "year" ? 4 : 7);
+          const todayKey = new Date(asOf ?? Date.now()).toISOString().slice(0, cfg.granularity === "year" ? 4 : 7);
           const idx = series.findIndex((s) => s.key === todayKey);
           if (idx < 0) return null;
           const x = PAD_L + (idx + 0.5) * barStep;

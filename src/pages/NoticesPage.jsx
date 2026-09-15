@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FilterBar, { defaultFilters, FILTER_KEYS, QUERY_DEFAULTS } from "../components/FilterBar";
 import NoticesTable from "../components/NoticesTable";
 import { useQueryState } from "../router";
@@ -91,15 +91,16 @@ function toFilters(qs) {
   return { ...defaultFilters, search: qs.q, state: qs.state, type: qs.type, size: qs.size, since: qs.since };
 }
 
-export default function NoticesPage({ db }) {
+export default function NoticesPage({ db, initialData, error }) {
   const [qs, setQs] = useQueryState(FILTER_KEYS, QUERY_DEFAULTS);
   // Honor ?sort= from inbound links (e.g. clicking a header on the Overview
   // preview deep-links here with that sort already applied). Whitelist via
   // SORT_MAP so a hostile URL can't smuggle anything into the ORDER BY.
-  const [sort, setSort] = useState(() => {
+  const [sort, setSort] = useState("-received_date");
+  useEffect(() => {
     const incoming = new URLSearchParams(window.location.search).get("sort");
-    return incoming && SORT_MAP[incoming] ? incoming : "-received_date";
-  });
+    if (incoming && SORT_MAP[incoming]) setSort(incoming);
+  }, []);
   const filters = toFilters(qs);
 
   const setFilters = (updater) => {
@@ -117,9 +118,10 @@ export default function NoticesPage({ db }) {
 
   // Pull the list of distinct states once for the FilterBar dropdown.
   // The states table is 43 rows; no need to scan notices.
-  const stateOptions = useMemo(() => query(db, "SELECT state FROM states ORDER BY state").map((r) => r.state), [db]);
+  const stateOptions = useMemo(() => initialData?.states ?? query(db, "SELECT state FROM states ORDER BY state").map((r) => r.state), [db, initialData]);
 
   const { rows, total } = useMemo(() => {
+    if (!db) return initialData;
     const { clause, params } = buildWhere(filters);
     const orderBy = SORT_MAP[sort] ?? SORT_MAP.received_date;
     const rows = query(
@@ -134,7 +136,7 @@ export default function NoticesPage({ db }) {
     );
     const total = queryOne(db, `SELECT COUNT(*) AS n FROM notices ${clause}`, params)?.n ?? 0;
     return { rows, total };
-  }, [db, filters, sort]);
+  }, [db, initialData, filters, sort]);
 
   const showing = Math.min(rows.length, DISPLAY_LIMIT);
   const hasMore = rows.length > DISPLAY_LIMIT;
@@ -159,7 +161,8 @@ export default function NoticesPage({ db }) {
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+    <fieldset disabled={!db} className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16 w-full" style={{ border: 0, minWidth: 0 }}>
+      {!db && <p role={error ? "alert" : "status"}>{error ? "Could not load filtering and downloads. Reload to try again." : "Loading filters and downloads…"}</p>}
       <div className="dk-section-head">
         <div style={{ minWidth: 0 }}>
           <h1 className="dk-h1" style={{ marginBottom: 2 }}>All notices</h1>
@@ -176,6 +179,6 @@ export default function NoticesPage({ db }) {
           Showing first {DISPLAY_LIMIT}. Refine the filters to narrow further.
         </p>
       )}
-    </div>
+    </fieldset>
   );
 }

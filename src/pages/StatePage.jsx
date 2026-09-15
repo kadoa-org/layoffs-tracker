@@ -14,17 +14,17 @@ import {
 } from "../ui";
 import { query, queryOne } from "../useDatabase";
 
-export default function StatePage({ code, db }) {
+export default function StatePage({ code, db, initialData }) {
   const [sort, setSort] = useState("-received_date");
   // Pull pre-aggregated totals from the states table (43 rows) and only the
   // first 500 filings for display.
   const meta = useMemo(
-    () => queryOne(db, "SELECT agency, notices, workers, companies, last_filed FROM states WHERE state = ?", [code]),
-    [db, code],
+    () => initialData?.meta ?? queryOne(db, "SELECT agency, notices, workers, companies, last_filed FROM states WHERE state = ?", [code]),
+    [db, code, initialData],
   );
   const sorted = useMemo(
     () =>
-      query(
+      initialData?.rows ?? query(
         db,
         `SELECT id, state, company, city, county, num_affected,
                 received_date, effective_date, event_type
@@ -34,7 +34,7 @@ export default function StatePage({ code, db }) {
          LIMIT 500`,
         [code],
       ),
-    [db, code],
+    [db, code, initialData],
   );
 
   if (!meta) {
@@ -76,7 +76,7 @@ export default function StatePage({ code, db }) {
           <DownloadCsvButton
             count={meta.notices}
             onClick={() => {
-              const all = query(
+              const all = initialData?.rows ?? query(
                 db,
                 `SELECT company, state, city, county, num_affected, event_type, received_date, effective_date
                  FROM notices WHERE state = ? ORDER BY received_date DESC NULLS LAST`,

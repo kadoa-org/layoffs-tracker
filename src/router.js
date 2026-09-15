@@ -37,10 +37,11 @@ export function parseRoute(pathname = window.location.pathname, search = window.
   return { name: "overview", query };
 }
 
-export function useRoute() {
-  const [route, setRoute] = useState(() => parseRoute());
+export function useRoute(initialRoute) {
+  const [route, setRoute] = useState(() => initialRoute ?? parseRoute());
   useEffect(() => {
     const onPop = () => setRoute(parseRoute());
+    onPop();
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -68,22 +69,14 @@ export const useNavigate = () => useContext(NavigationContext);
 
 // Hook: synchronize arbitrary state <-> URL query string on a given route.
 export function useQueryState(keys, initial) {
-  const [state, setState] = useState(() => {
-    const p = new URLSearchParams(window.location.search);
-    const next = { ...initial };
-    for (const k of keys) {
-      const v = p.get(k);
-      if (v != null && v !== "") next[k] = v;
-    }
-    return next;
-  });
+  const [state, setState] = useState(initial);
 
   const set = useCallback(
     (updater) => {
       setState((prev) => {
         const merged = typeof updater === "function" ? updater(prev) : { ...prev, ...updater };
         // Reflect to URL
-        const p = new URLSearchParams(window.location.search);
+        const p = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
         for (const k of keys) {
           const v = merged[k];
           if (v == null || v === "" || v === initial[k]) p.delete(k);
@@ -101,7 +94,7 @@ export function useQueryState(keys, initial) {
   // Listen for popstate so browser nav still works
   useEffect(() => {
     const onPop = () => {
-      const p = new URLSearchParams(window.location.search);
+      const p = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
       setState((prev) => {
         const next = { ...initial };
         for (const k of keys) {
@@ -111,6 +104,7 @@ export function useQueryState(keys, initial) {
         return next;
       });
     };
+    onPop();
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, [keys, initial]);

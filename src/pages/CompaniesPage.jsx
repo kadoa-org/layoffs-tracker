@@ -15,12 +15,12 @@ const COLS = "grid gap-3 px-4 grid-cols-[30px_1fr_60px_70px] sm:grid-cols-[40px_
 
 const SORT_KEYS = new Set(["name", "-name", "notices", "-notices", "workers", "-workers", "last_filed", "-last_filed"]);
 
-export default function CompaniesPage({ db, page, filters = {} }) {
+export default function CompaniesPage({ db, page, filters = {}, initialRows }) {
   const navigate = useNavigate();
   const sort = SORT_KEYS.has(filters.sort) ? filters.sort : "-workers";
   const search = filters.q ?? "";
   const term = search.trim();
-  const directory = useMemo(() => readCompanyDirectory(db), [db]);
+  const directory = useMemo(() => initialRows ?? readCompanyDirectory(db), [db, initialRows]);
   const filtered = useMemo(() => {
     const rows = term ? directory.filter(company => company.name.toLowerCase().includes(term.toLowerCase())) : directory;
     if (sort === "-workers") return rows;

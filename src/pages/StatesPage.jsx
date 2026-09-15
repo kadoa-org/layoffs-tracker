@@ -14,22 +14,29 @@ const SORT_MAP = {
   coverage: "first_filed ASC",
 };
 
-export default function StatesPage({ db }) {
+export default function StatesPage({ db, initialRows }) {
   const [sort, setSort] = useState("workers");
 
   const rows = useMemo(() => {
     const order = SORT_MAP[sort] ?? "workers DESC";
+    if (initialRows) {
+      const [field, direction] = order.split(" ");
+      return [...initialRows].sort((a, b) => {
+        const left = a[field] ?? "", right = b[field] ?? "";
+        return (left < right ? -1 : left > right ? 1 : 0) * (direction === "DESC" ? -1 : 1);
+      });
+    }
     return query(
       db,
       `SELECT state, agency, notices, workers, coverage
        FROM states
        ORDER BY ${order}`,
     );
-  }, [db, sort]);
+  }, [db, sort, initialRows]);
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
-      <SectionHeader title="States" subtitle={`${fmtInt(rows.length)} states`} />
+      <header className="dk-section-head"><div><h1 className="dk-h1">States</h1><p className="dk-hint">{fmtInt(rows.length)} states</p></div></header>
       <Card className="overflow-hidden">
         <div className={`${COLS} ${TABLE_HEADER_CLS} h-9 items-center border-b border-stroke`}>
           <span className="text-right">#</span>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { DataTable } from "../kit";
-import { Card, companySlug, eventPill, fmtCompact, fmtDate, fmtInt, Link, Pill, RowLinkNav, Segmented } from "../ui";
+import { Card, companyPath, eventPill, fmtCompact, fmtDate, fmtInt, Link, Pill, RowLinkNav, Segmented } from "../ui";
 
 // Same column shape as NoticesTable so the dashboard reads consistently.
 // Mobile collapses Type / City / Effective; only Company / State / Workers remain.
@@ -47,7 +47,7 @@ export default function Leaderboard({ topLayoffs, totals, limit = 10, asOf }) {
             clamp: true,
       width: "34%",
             render: (n) => (
-              <RowLinkNav to={`/company/${companySlug(n.company)}`}>
+              <RowLinkNav to={companyPath(n.company)}>
                 <span style={{ fontWeight: 500 }}>{n.company}</span>
               </RowLinkNav>
             ),

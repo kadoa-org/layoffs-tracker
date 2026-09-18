@@ -252,7 +252,7 @@ export function Segmented({ value, onChange, options, size = "default" }) {
 
 // Re-exported from the shared slug module so the client and the build scripts
 // stay byte-identical. See src/slug.js.
-export { companySlug } from "./slug";
+export { companyPath, companySlug } from "./slug";
 
 // ── CSV export ────────────────────────────────────────────────────────────────
 // The dataset is open, so every view offers a download of exactly what's shown.
@@ -320,6 +320,7 @@ export function DownloadCsvButton({ onClick, count }) {
 // on plain clicks. Used for primary cells inside kit DataTables.
 export function RowLinkNav({ to, children }) {
   const navigate = useNavigate();
+  if (!to) return children;
   return (
     <a
       href={withBase(to)}

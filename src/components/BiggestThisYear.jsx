@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { DataTable } from "../kit";
-import { companySlug, eventPill, fmtCompact, fmtDate, Link, Pill, RowLinkNav } from "../ui";
+import { companyPath, eventPill, fmtCompact, fmtDate, Link, Pill, RowLinkNav } from "../ui";
 
 // Top-N largest layoff filings for a given year. Reddit-friendly leaderboard.
 export default function BiggestThisYear({ notices, year, limit = 10 }) {
@@ -26,7 +26,7 @@ export default function BiggestThisYear({ notices, year, limit = 10 }) {
       clamp: true,
       width: "34%",
       render: (n) => (
-        <RowLinkNav to={`/company/${companySlug(n.company)}`}>
+        <RowLinkNav to={companyPath(n.company)}>
           <span style={{ fontWeight: 500 }}>{n.company}</span>
         </RowLinkNav>
       ),

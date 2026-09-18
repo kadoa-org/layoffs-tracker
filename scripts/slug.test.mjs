@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { companySlug } from "../src/slug.js";
+import { companyPath, companySlug } from "../src/slug.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -21,6 +21,9 @@ assert.equal(companySlug("A. O. Smith"), "a-o-smith");
 assert.equal(companySlug("C&S Wholesale Services"), "cs-wholesale-services");
 assert.equal(companySlug("The Boeing Company"), "boeing");
 assert.equal(companySlug(""), "unknown");
+assert.equal(companyPath("AT&T Corp."), "/company/att");
+assert.equal(companyPath("."), null);
+assert.equal(companyPath(""), null);
 
 // Every reported soft-404 slug must resolve to >=1 notice under slug grouping,
 // i.e. the company page will not be blank.

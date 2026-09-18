@@ -20,3 +20,11 @@ const home = read('');
 for (const code of seed(home).data.states) assert(home.includes(`/layoffs/state/${code}`));
 assert.match(home, /Latest filings/);
 console.log('Layoffs rendering: actual tables, complete downloads and crawlable directories verified');
+
+const tennessee = read('state/TN');
+const unnamedNotices = seed(tennessee).data.rows.filter(row => row.company === '.');
+const sourceUnnamedNotices = JSON.parse(fs.readFileSync(new URL('../public/data/notices.json', import.meta.url), 'utf8'))
+  .filter(row => row.state === 'TN' && row.company === '.');
+assert.equal(unnamedNotices.length, sourceUnnamedNotices.length, 'keep every original notice with an unnamed company');
+assert(!/href="\/layoffs\/company\/(?:unknown)?"/.test(tennessee), 'unnamed companies must not link to nonexistent company pages');
+assert(tennessee.includes('href="/layoffs/company/kilgore-flares"'), 'named companies retain their detail links');

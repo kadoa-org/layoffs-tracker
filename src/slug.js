@@ -17,3 +17,8 @@ export function companySlug(name) {
     .replace(/^-|-$/g, "")
     .slice(0, 60);
 }
+
+export function companyPath(name) {
+  const slug = companySlug(name);
+  return slug && slug !== "unknown" ? `/company/${slug}` : null;
+}

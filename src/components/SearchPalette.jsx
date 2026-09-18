@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "../router";
-import { companySlug, fmtCompact } from "../ui";
+import { companyPath, fmtCompact } from "../ui";
 
 // All 50 + DC for navigation. State coverage gating happens on the State page.
 const STATES = [
@@ -128,10 +128,12 @@ export default function SearchPalette({ open, onClose }) {
     for (const c of companies ?? []) {
       if (companyCount >= companyLimit) break;
       if (query && !c._lower.includes(query)) continue;
+      const id = companyPath(c.name);
+      if (!id) continue;
       // When there's no query, bias toward the biggest employers as "suggested".
       out.push({
         type: "company",
-        id: `/company/${companySlug(c.name)}`,
+        id,
         label: c.name,
         hint: `${c.states} ${c.states === 1 ? "state" : "states"} · last filed ${c.last_filed ?? "--"}`,
         right: `${fmtCompact(c.workers)} workers`,

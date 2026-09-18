@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { DataTable } from "../kit";
-import { companySlug, eventPill, fmtCompact, fmtDate, Link, Pill, RowLinkNav, STATE_WARN_URL } from "../ui";
+import { companyPath, eventPill, fmtCompact, fmtDate, Link, Pill, RowLinkNav, STATE_WARN_URL } from "../ui";
 
 // data-kit DataTable over the notices dataset.
 // Columns: Company / Type / State / City / Workers / Filed / Effective / Source.
@@ -68,7 +68,7 @@ export default function NoticesTable({ notices, sort, setSort, limit, sortable =
       clamp: true,
       width: "28%",
       render: (n) => (
-        <RowLinkNav to={`/company/${companySlug(n.company)}`}>
+        <RowLinkNav to={companyPath(n.company)}>
           <span style={{ display: "block", fontWeight: 500 }} className="truncate">
             {n.company}
           </span>

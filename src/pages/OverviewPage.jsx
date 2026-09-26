@@ -76,21 +76,25 @@ export default function OverviewPage({ pendingContent, initialData }) {
       {h && (
         <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6">
           <KeyFigures
-            title="Layoffs, past 12 months"
-            description={`Workers named in WARN notices. Changes cover the ${h.comparableStates} states reporting in both years.`}
+            title="Headlines"
+            description={`Workers named in WARN notices. Changes compare the ${h.comparableStates} states reporting in both years.`}
             date={`Up to and including ${asOf}`}
             items={[
-              { label: "Workers affected", value: fmtInt(h.workers), note: <><ChangeTag value={h.workersChange} size="small" /> on the year before</> },
-              { label: "Companies filing", value: fmtInt(h.companies), note: <><ChangeTag value={h.companiesChange} size="small" /> on the year before</> },
-              h.largest && {
-                label: "Largest layoff",
-                value: <Link to={companyPath(h.largest.company)}>{h.largest.company}</Link>,
-                note: `${fmtInt(h.largest.num_affected)} workers, ${STATE_NAMES[h.largest.state] ?? h.largest.state}`,
+              { label: "Workers affected, past 12 months", value: fmtInt(h.workers), note: <><ChangeTag value={h.workersChange} size="small" /> on the year before</> },
+              h.recentLargest && {
+                label: "Largest layoff, past 30 days",
+                value: <Link to={companyPath(h.recentLargest.company)}>{h.recentLargest.company}</Link>,
+                note: `${fmtInt(h.recentLargest.workers)} workers, ${STATE_NAMES[h.recentLargest.state] ?? h.recentLargest.state}, ${fmtDate(h.recentLargest.date)}`,
               },
-              h.topState && {
-                label: "Most affected state",
-                value: <Link to={`/state/${h.topState.state}`}>{STATE_NAMES[h.topState.state] ?? h.topState.state}</Link>,
-                note: `${fmtInt(h.topState.workers)} workers`,
+              h.topFiler && {
+                label: "Most notices, past 12 months",
+                value: <Link to={companyPath(h.topFiler.company)}>{h.topFiler.company}</Link>,
+                note: `${fmtInt(h.topFiler.notices)} notices, ${fmtInt(h.topFiler.workers)} workers in ${h.topFiler.states} ${h.topFiler.states === 1 ? "state" : "states"}`,
+              },
+              h.risingState && {
+                label: "Fastest-rising state",
+                value: <Link to={`/state/${h.risingState.state}`}>{STATE_NAMES[h.risingState.state] ?? h.risingState.state}</Link>,
+                note: <><ChangeTag value={h.risingState.change} size="small" /> to {fmtInt(h.risingState.workers)} workers</>,
               },
             ]}
           />

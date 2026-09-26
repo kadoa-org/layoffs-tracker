@@ -503,6 +503,31 @@ async function main() {
   const companiesNow = companyCount(m12Cutoff, farFuture, true);
   const companiesBefore = companyCount(m24Cutoff, m12Cutoff, true);
   const change = (now_, before) => (before > 0 ? ((now_ - before) / before) * 100 : null);
+  // The newest big layoff: the largest notice received in the past 30 days, which is the one readers have heard of.
+  const d30 = new Date(now);
+  d30.setUTCDate(d30.getUTCDate() - 30);
+  const d30Cutoff = d30.toISOString().slice(0, 10);
+  const recentRow = db.exec(
+    `SELECT company, state, num_affected, COALESCE(received_date, effective_date) AS d FROM notices
+      WHERE COALESCE(received_date, effective_date) >= ? AND num_affected > 0
+      ORDER BY num_affected DESC, d DESC LIMIT 1`,
+    [d30Cutoff],
+  )[0]?.values[0];
+  // Repeat filers: the employer with the most notices over the year, a sign of cuts spread across many sites.
+  const filerRow = db.exec(
+    `SELECT n.slug, COALESCE(c.name, MAX(n.company)), COUNT(*), COALESCE(SUM(n.num_affected), 0), COUNT(DISTINCT n.state)
+       FROM notices n LEFT JOIN companies c ON c.canon = n.slug
+      WHERE COALESCE(n.received_date, n.effective_date) >= ?
+      GROUP BY n.slug ORDER BY COUNT(*) DESC, SUM(n.num_affected) DESC LIMIT 1`,
+    [m12Cutoff],
+  )[0]?.values[0];
+  // Fastest-rising state against the year before, among states large enough that a percentage means something:
+  // at least 2,000 workers in both windows, so one plant closing in a small state cannot top the list.
+  const RISING_FLOOR = 2000;
+  const rising = (windowRows?.values ?? [])
+    .filter(([, , wNow, , wBefore]) => wNow >= RISING_FLOOR && wBefore >= RISING_FLOOR)
+    .map(([state, , wNow, , wBefore]) => ({ state, workers: wNow, change: ((wNow - wBefore) / wBefore) * 100 }))
+    .sort((a, b) => b.change - a.change)[0];
   const topState = Object.entries(stateStats).sort((a, b) => b[1].workers12mo - a[1].workers12mo)[0];
   const headline = {
     since: m12Cutoff,
@@ -515,6 +540,9 @@ async function main() {
     comparableStates: comparable.states,
     largest: overviewTopByRange["12m"][0] ?? null,
     topState: topState ? { state: topState[0], workers: topState[1].workers12mo } : null,
+    recentLargest: recentRow ? { company: recentRow[0], state: recentRow[1], workers: recentRow[2], date: recentRow[3] } : null,
+    topFiler: filerRow ? { slug: filerRow[0], company: filerRow[1], notices: filerRow[2], workers: filerRow[3], states: filerRow[4] } : null,
+    risingState: rising ?? null,
   };
 
   const overview = {

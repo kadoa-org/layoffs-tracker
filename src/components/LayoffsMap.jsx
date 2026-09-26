@@ -243,7 +243,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
       tabs={[
         { label: "Chart", content: chart },
         {
-          label: "Tabular data",
+          label: "Tabular data", short: "Tabular",
           content: (
             <DataTable
               plain

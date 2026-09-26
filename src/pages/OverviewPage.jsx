@@ -3,9 +3,10 @@ import Leaderboard from "../components/Leaderboard";
 import MonthlyTimeline from "../components/MonthlyTimeline";
 import NoticesTable from "../components/NoticesTable";
 import SectorChart from "../components/SectorChart";
-import StatRail from "../components/StatRail";
+import { ChangeTag, KeyFigures } from "../kit";
+import { STATE_NAMES } from "../states";
 import { useNavigate } from "../router";
-import { Link, SectionHeader } from "../ui";
+import { companyPath, fmtDate, fmtInt, Link, SectionHeader } from "../ui";
 
 // The map ships ~50KB gz of d3-geo + US geometry. Code-split it so the landing
 // paints from the 7KB overview.json first and the map streams in after.
@@ -56,27 +57,51 @@ export default function OverviewPage({ pendingContent, initialData }) {
 
   const { stats, timeline, topLayoffs, leaderboardTotals, recent, stateStats, mapWindow, sectors, sectorsClassified } =
     data;
-  const headline = "Monitor every US layoff disclosed under the WARN Act";
-  const subline =
-    "The federal WARN Act requires employers with 100+ workers to give 60 days notice before mass layoffs or plant closings (thresholds vary by state, but roughly 50+ jobs lost). This site is a fully open-source aggregator that makes the data easy to access.";
+  const h = data.headline;
+  const asOf = fmtDate(stats.generatedAt.slice(0, 10));
 
   return (
     <>
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-6">
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-2">
         <div className="max-w-3xl">
-          <h1 className="dk-h1">
-            {headline}
-          </h1>
-          <p className="text-regular text-ink_muted">{subline}</p>
-          <StatRail stats={stats} />
+          <h1 className="dk-h1">US Layoffs Tracker</h1>
+          <p className="text-regular text-ink_muted">
+            Every US layoff disclosed under the WARN Act: {fmtInt(stats.totalNotices)} notices from state labor departments since {stats.earliestYear}, updated daily.
+          </p>
         </div>
       </section>
 
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+      {/* Headline figures: one period for the whole row, named in the heading. The change compares like with like,
+          only states that already reported a year earlier, so a newly added state never reads as a rise. */}
+      {h && (
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6">
+          <KeyFigures
+            title="Layoffs, past 12 months"
+            description={`Workers named in WARN notices. Changes cover the ${h.comparableStates} states reporting in both years.`}
+            date={`Up to and including ${asOf}`}
+            items={[
+              { label: "Workers affected", value: fmtInt(h.workers), note: <><ChangeTag value={h.workersChange} size="small" /> on the year before</> },
+              { label: "Companies filing", value: fmtInt(h.companies), note: <><ChangeTag value={h.companiesChange} size="small" /> on the year before</> },
+              h.largest && {
+                label: "Largest layoff",
+                value: <Link to={companyPath(h.largest.company)}>{h.largest.company}</Link>,
+                note: `${fmtInt(h.largest.num_affected)} workers, ${STATE_NAMES[h.largest.state] ?? h.largest.state}`,
+              },
+              h.topState && {
+                label: "Most affected state",
+                value: <Link to={`/state/${h.topState.state}`}>{STATE_NAMES[h.topState.state] ?? h.topState.state}</Link>,
+                note: `${fmtInt(h.topState.workers)} workers`,
+              },
+            ]}
+          />
+        </section>
+      )}
+
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6">
         <MapLoader stateStats={stateStats} window={mapWindow} />
       </section>
 
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6">
         <MonthlyTimeline timeline={timeline} asOf={stats.generatedAt} />
       </section>
 
@@ -85,6 +110,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
         <SectionHeader
           title="Latest filings"
+          subtitle="The newest WARN notices, by the date they were filed."
           right={
             <Link to="/notices" className="text-small no-underline hover:no-underline">
               See all →
@@ -104,6 +130,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
         <SectionHeader
           title="Biggest layoffs"
+          subtitle="The largest single notices by workers affected."
           right={
             <Link to="/notices" className="text-small no-underline hover:no-underline">
               See all →
@@ -114,8 +141,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       </section>
 
       {sectors && sectors.length > 0 && (
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-20">
-          <SectionHeader title="Layoffs by sector" />
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-6">
           <SectorChart sectors={sectors} classified={sectorsClassified} />
         </section>
       )}

@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
-import { fmtCompact, fmtInt, Segmented } from "../ui";
+import { ChartCard, DataTable, FilterSelect } from "../kit";
+import { fmtCompact, fmtDate, fmtInt } from "../ui";
 
 // Time-series chart of workers affected. SVG, no chart lib.
 //
@@ -20,7 +21,8 @@ const PAD_T = 14;
 const PAD_B = 28;
 const HEIGHT = 280;
 const MIN_BAR_W = 2;
-const BAR_COLOR = "#c84a4a";
+// The GOV.UK Analysis Function navy, shared with the other dataset sites' charts.
+const BAR_COLOR = "#12436d";
 
 // ── Time-bucketing helpers ───────────────────────────────────────────────────
 
@@ -79,9 +81,9 @@ function niceTicks(max, targetCount = 4) {
 // ── Range modes ──────────────────────────────────────────────────────────────
 
 const RANGES = [
-  { value: "1y", label: "1Y", granularity: "month" },
-  { value: "5y", label: "5Y", granularity: "month" },
-  { value: "all", label: "All", granularity: "year" },
+  { value: "1y", label: "1 year", granularity: "month" },
+  { value: "5y", label: "5 years", granularity: "month" },
+  { value: "all", label: "All years", granularity: "year" },
 ];
 
 function sinceKeyFor(range, granularity, asOf) {
@@ -117,13 +119,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
     if (w && Math.abs(w - width) > 4) setWidth(w);
   };
 
-  if (series.length === 0) {
-    return (
-      <div className="border border-[#b1b4b6]  bg-panel h-48 flex items-center justify-center text-mini text-ink_muted">
-        No timeline data yet.
-      </div>
-    );
-  }
+  if (series.length === 0) return <p className="text-mini text-ink_muted">No timeline data yet.</p>;
 
   const innerW = Math.max(200, width - PAD_L - PAD_R);
   const innerH = height - PAD_T - PAD_B;
@@ -148,26 +144,13 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
   };
   const onLeave = () => setHoverIdx(null);
 
-  return (
-    <div ref={containerRef} className="border border-[#b1b4b6]  bg-panel p-3 sm:p-4">
-      <div className="flex items-center justify-between gap-2 mb-1">
-        <div className="text-small font-medium text-ink truncate">Workers affected per {cfg.granularity}</div>
-        <div className="shrink-0">
-          <Segmented
-            size="sm"
-            value={range}
-            onChange={setRange}
-            options={RANGES.map(({ value, label }) => ({ value, label }))}
-          />
-        </div>
-      </div>
-      <div className="text-mini text-ink_muted h-4 tabular-nums mb-2 truncate">
-        <span className="text-ink font-medium">{bucketLabel(focused.key, cfg.granularity)}</span>
-        <span className="mx-1.5">·</span>
-        {fmtInt(focused.workers)} workers
-        <span className="mx-1.5">·</span>
-        {fmtInt(focused.notices)} {focused.notices === 1 ? "notice" : "notices"}
-      </div>
+  const asOfDate = fmtDate(new Date(asOf ?? Date.now()).toISOString().slice(0, 10));
+  const chart = (
+    <div ref={containerRef}>
+      <FilterSelect value={range} options={RANGES.map(({ value, label }) => [value, label])} onChange={setRange} />
+      <p className="text-small text-ink_muted tabular-nums mb-2 truncate">
+        <span className="text-ink font-medium">{bucketLabel(focused.key, cfg.granularity)}</span>: {fmtInt(focused.workers)} workers, {fmtInt(focused.notices)} {focused.notices === 1 ? "notice" : "notices"}
+      </p>
       <svg
         ref={svgRef}
         width="100%"
@@ -189,7 +172,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
                 x2={width - PAD_R}
                 y1={y}
                 y2={y}
-                stroke="lch(94% 0 282)"
+                stroke="#dfe1e2"
                 strokeWidth="1"
                 shapeRendering="crispEdges"
               />
@@ -197,7 +180,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
                 x={PAD_L - 8}
                 y={y + 3}
                 textAnchor="end"
-                fontSize="10"
+                fontSize="12"
                 fill="lch(50% 0 282)"
                 className="tabular-nums"
               >
@@ -237,7 +220,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
                 x={x}
                 y={PAD_T + innerH + 16}
                 textAnchor="middle"
-                fontSize="10"
+                fontSize="12"
                 fill="lch(45% 0 282)"
                 className="tabular-nums"
               >
@@ -318,6 +301,33 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
         />
       </svg>
     </div>
+  );
+  const rows = [...series].reverse();
+  return (
+    <ChartCard
+      id="timeline-title"
+      title="Workers affected over time"
+      description={`Workers named in WARN notices, by the ${cfg.granularity} the notice was received.`}
+      date={`Up to and including ${asOfDate}`}
+      tabs={[
+        { label: "Chart", content: chart },
+        {
+          label: "Tabular data",
+          content: (
+            <DataTable
+              plain
+              rowKey={(r) => r.key}
+              rows={rows}
+              columns={[
+                { key: "key", header: cfg.granularity === "year" ? "Year" : "Month", render: (r) => bucketLabel(r.key, cfg.granularity) },
+                { key: "workers", header: "Workers", align: "right", render: (r) => fmtInt(r.workers) },
+                { key: "notices", header: "Notices", align: "right", render: (r) => fmtInt(r.notices) },
+              ]}
+            />
+          ),
+        },
+      ]}
+    />
   );
 }
 

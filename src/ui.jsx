@@ -1,5 +1,6 @@
 // Reusable primitives. Linear.app sizing: 18px root, 0.9375rem body.
 import React from "react";
+import { SectionHeading, Stat, StatGrid as KitStatGrid } from "./kit";
 import { Tag as DkTag } from "./kit";
 import { useNavigate, withBase } from "./router";
 
@@ -187,16 +188,9 @@ export function Card({ children, className = "" }) {
   return <div className={`border border-[#b1b4b6] bg-white ${className}`}>{children}</div>;
 }
 
-export function SectionHeader({ title, subtitle, right }) {
-  return (
-    <div className="dk-section-head">
-      <div style={{ minWidth: 0 }}>
-        <h2>{title}</h2>
-        {subtitle && <p className="dk-hint">{subtitle}</p>}
-      </div>
-      {right && <div style={{ flexShrink: 0, whiteSpace: "nowrap" }}>{right}</div>}
-    </div>
-  );
+// Section headings follow the shared kit pattern: bold title, italic description, date.
+export function SectionHeader({ title, subtitle, date, right }) {
+  return <SectionHeading title={title} description={subtitle} date={date} right={right} />;
 }
 
 export function PropertyLabel({ children, className = "" }) {
@@ -207,25 +201,7 @@ export function PropertyLabel({ children, className = "" }) {
 // both axes and non-wrapping values. Used for the headline stat rail and the
 // company/state summary cards so they stay aligned at every width.
 export function StatGrid({ items }) {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 bg-white border border-[#b1b4b6] overflow-hidden">
-      {items.map((it, i) => {
-        const cls = [
-          "px-4 sm:px-5 py-4 min-w-0 border-stroke",
-          i % 2 !== 0 ? "border-l" : "", // mobile: 2nd column
-          i >= 2 ? "border-t" : "", // mobile: rows after the first
-          "sm:border-t-0", // desktop is a single row
-          i % 4 === 0 ? "sm:border-l-0" : "sm:border-l", // desktop: divider between every column
-        ].join(" ");
-        return (
-          <div key={it.label} className={cls}>
-            <PropertyLabel className="mb-1.5">{it.label}</PropertyLabel>
-            <div className="text-regular sm:text-large font-semibold text-ink tabular-nums truncate">{it.value}</div>
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <KitStatGrid>{items.map((it) => <Stat key={it.label} label={it.label} value={it.value} sub={it.sub} />)}</KitStatGrid>;
 }
 
 export function Segmented({ value, onChange, options, size = "default" }) {

@@ -462,8 +462,64 @@ async function main() {
   }
   const sectors = [...sectorMap.values()].sort((a, b) => b.workers - a.workers);
 
+  // Headline figures for the landing page: the trailing 12 months against the 12 before. Coverage grows as state
+  // feeds are added, so the comparison only counts states that already reported in the earlier window; a state
+  // joining the dataset must not read as a rise in layoffs.
+  const m24 = new Date(now);
+  m24.setUTCMonth(m24.getUTCMonth() - 24);
+  const m24Cutoff = m24.toISOString().slice(0, 10);
+  const windowRows = db.exec(
+    `SELECT state,
+            SUM(CASE WHEN d >= ? THEN 1 ELSE 0 END) AS notices_now,
+            COALESCE(SUM(CASE WHEN d >= ? AND num_affected > 0 THEN num_affected ELSE 0 END), 0) AS workers_now,
+            SUM(CASE WHEN d >= ? AND d < ? THEN 1 ELSE 0 END) AS notices_before,
+            COALESCE(SUM(CASE WHEN d >= ? AND d < ? AND num_affected > 0 THEN num_affected ELSE 0 END), 0) AS workers_before
+       FROM (SELECT state, num_affected, COALESCE(received_date, effective_date) AS d FROM notices)
+      GROUP BY state`,
+    [m12Cutoff, m12Cutoff, m24Cutoff, m12Cutoff, m24Cutoff, m12Cutoff],
+  )[0];
+  const comparable = { states: 0, noticesNow: 0, workersNow: 0, noticesBefore: 0, workersBefore: 0 };
+  for (const [, nNow, wNow, nBefore, wBefore] of windowRows?.values ?? []) {
+    if (!nBefore) continue;
+    comparable.states++;
+    comparable.noticesNow += nNow;
+    comparable.workersNow += wNow;
+    comparable.noticesBefore += nBefore;
+    comparable.workersBefore += wBefore;
+  }
+  // Companies rather than notices: one employer often files a notice per site (Kaiser filed eight in a day), so a
+  // count of companies says how widespread layoffs are in a way a count of notices cannot. Same comparable states.
+  const comparableStates = (windowRows?.values ?? []).filter((row) => row[3] > 0).map((row) => row[0]);
+  const marks = comparableStates.map(() => "?").join(",") || "''";
+  const companyCount = (from, to, states) =>
+    db.exec(
+      `SELECT COUNT(DISTINCT slug) FROM notices
+        WHERE COALESCE(received_date, effective_date) >= ? AND COALESCE(received_date, effective_date) < ?
+          ${states ? `AND state IN (${marks})` : ""}`,
+      [from, to, ...(states ? comparableStates : [])],
+    )[0].values[0][0];
+  const farFuture = "9999-12-31";
+  const companies12 = companyCount(m12Cutoff, farFuture, false);
+  const companiesNow = companyCount(m12Cutoff, farFuture, true);
+  const companiesBefore = companyCount(m24Cutoff, m12Cutoff, true);
+  const change = (now_, before) => (before > 0 ? ((now_ - before) / before) * 100 : null);
+  const topState = Object.entries(stateStats).sort((a, b) => b[1].workers12mo - a[1].workers12mo)[0];
+  const headline = {
+    since: m12Cutoff,
+    workers: totals["12m"],
+    notices: Object.values(stateStats).reduce((sum, s) => sum + s.notices12mo, 0),
+    workersChange: change(comparable.workersNow, comparable.workersBefore),
+    noticesChange: change(comparable.noticesNow, comparable.noticesBefore),
+    companies: companies12,
+    companiesChange: change(companiesNow, companiesBefore),
+    comparableStates: comparable.states,
+    largest: overviewTopByRange["12m"][0] ?? null,
+    topState: topState ? { state: topState[0], workers: topState[1].workers12mo } : null,
+  };
+
   const overview = {
     stats,
+    headline,
     timeline: overviewTimeline,
     topLayoffs: overviewTopByRange,
     leaderboardTotals: totals,

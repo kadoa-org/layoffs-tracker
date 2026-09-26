@@ -2,8 +2,10 @@ import { geoAlbersUsa, geoPath } from "d3-geo";
 import React, { useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import statesTopo from "us-atlas/states-10m.json";
+import { ChartCard, DataTable } from "../kit";
 import { useNavigate } from "../router";
-import { fmtInt, Link } from "../ui";
+import { STATE_NAMES } from "../states";
+import { fmtDate, fmtInt, Link } from "../ui";
 
 // Proportional-symbol map of WARN layoffs by state. Bubbles are area-scaled to
 // workers affected in the trailing 12 months. Three coverage states are shown:
@@ -17,7 +19,7 @@ const WIDTH = 960;
 const HEIGHT = 600;
 const MAX_R = 34;
 const MIN_R = 2.5;
-const BUBBLE = "#c84a4a";
+const BUBBLE = "#12436d";
 
 // FIPS (us-atlas state id) -> USPS 2-letter code.
 const FIPS_TO_USPS = {
@@ -131,12 +133,11 @@ export default function LayoffsMap({ stateStats, window: win }) {
   // hide them and let tap-through to the state page carry the detail.
   const isMobile = width < 560;
 
-  return (
-    <div ref={onResize} className="border border-[#b1b4b6]  bg-panel p-3 sm:p-4">
+  const chart = (
+    <div ref={onResize}>
       <div className="mb-2 sm:mb-3">
-        <div className="text-small font-medium text-ink">Layoffs by state</div>
         {/* Single-line, never wraps — a fixed line that doesn't push into the map. */}
-        <div className="text-mini text-ink_muted truncate">
+        <div className="text-small text-ink_muted truncate">
           {focused && focused.code ? (
             focused.noData ? (
               <span>
@@ -154,7 +155,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
               </span>
             )
           ) : (
-            <span>Affected workers by state · last 12 months</span>
+            <span>Hover over a state for its figures</span>
           )}
         </div>
       </div>
@@ -217,7 +218,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
                 textAnchor="middle"
                 fontSize="9"
                 fontWeight="600"
-                fill={r.r >= 9 ? "#7a1f1f" : "lch(45% 0 282)"}
+                fill={r.r >= 9 ? "#fff" : "lch(45% 0 282)"}
                 pointerEvents="none"
               >
                 {r.code}
@@ -226,17 +227,38 @@ export default function LayoffsMap({ stateStats, window: win }) {
           )}
       </svg>
 
-      {/* HTML legend caption — replaces the in-SVG nested circles, which collided
-          with the Alaska inset bottom-left. */}
-      <p className="text-mini text-ink_muted mt-2">
-        Circle size = workers affected, last 12 months · hatched states don't publicly disclose ·{" "}
-        <Link
-          to="/about"
-          className="text-ink_muted hover:text-ink underline decoration-dotted decoration-ink_faint underline-offset-2"
-        >
-          coverage &amp; history vary by state
-        </Link>
-      </p>
+      <p className="text-mini text-ink_muted mt-2">Circle size shows workers affected. Hatched states do not publish WARN notices.</p>
     </div>
+  );
+  const rows = Object.entries(stateStats)
+    .filter(([, st]) => st.notices12mo > 0)
+    .map(([code, st]) => ({ code, ...st }))
+    .sort((a, b) => b.workers12mo - a.workers12mo);
+  return (
+    <ChartCard
+      id="map-title"
+      title="Layoffs by state, past 12 months"
+      description="Workers named in WARN notices received in each state."
+      date={win?.asOf ? `Up to and including ${fmtDate(win.asOf)}` : undefined}
+      tabs={[
+        { label: "Chart", content: chart },
+        {
+          label: "Tabular data",
+          content: (
+            <DataTable
+              plain
+              rowKey={(r) => r.code}
+              rows={rows}
+              columns={[
+                { key: "code", header: "State", render: (r) => <Link to={`/state/${r.code}`}>{STATE_NAMES[r.code] ?? r.code}</Link> },
+                { key: "workers12mo", header: "Workers", align: "right", render: (r) => fmtInt(r.workers12mo) },
+                { key: "notices12mo", header: "Notices", align: "right", render: (r) => fmtInt(r.notices12mo) },
+              ]}
+            />
+          ),
+        },
+      ]}
+      footer={<Link to="/about">Coverage and history vary by state</Link>}
+    />
   );
 }

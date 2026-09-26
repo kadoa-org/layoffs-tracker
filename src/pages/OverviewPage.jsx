@@ -76,9 +76,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       {h && (
         <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6">
           <KeyFigures
-            title="Headlines"
-            description={`Workers named in WARN notices. Changes compare the ${h.comparableStates} states reporting in both years.`}
-            date={`Up to and including ${asOf}`}
+            context={`Workers named in WARN notices, up to ${asOf}. Changes compare the ${h.comparableStates} states reporting in both years.`}
             items={[
               { label: "Workers affected, past 12 months", value: fmtInt(h.workers), note: <><ChangeTag value={h.workersChange} size="small" /> on the year before</> },
               h.recentLargest && {

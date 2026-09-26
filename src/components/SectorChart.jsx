@@ -40,7 +40,7 @@ export default function SectorChart({ sectors, classified }) {
       tabs={[
         { label: "Chart", content: chart },
         {
-          label: "Tabular data", short: "Tabular",
+          label: "Tabular data", short: "Tabular", scroll: true,
           content: (
             <DataTable
               plain

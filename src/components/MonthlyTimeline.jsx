@@ -312,7 +312,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
       tabs={[
         { label: "Chart", content: chart },
         {
-          label: "Tabular data", short: "Tabular",
+          label: "Tabular data", short: "Tabular", scroll: true,
           content: (
             <DataTable
               plain

@@ -17,7 +17,10 @@ assert.match(directory, /Layoffs by company, page 2/);
 assert.match(directory, /rel="prev"/);
 assert.match(directory, /rel="next"/);
 const home = read('');
-for (const code of seed(home).data.states) assert(home.includes(`/layoffs/state/${code}`));
+// States are linked from the States page, not from a block of links on the home page.
+const statesPage = read('states');
+for (const { state: code } of JSON.parse(fs.readFileSync(new URL('../public/data/states.json', import.meta.url), 'utf8'))) assert(statesPage.includes(`/layoffs/state/${code}`), `States page links ${code}`);
+assert(!home.includes('Browse layoffs by state'), 'no browse link block on the home page');
 assert.match(home, /Latest filings/);
 console.log('Layoffs rendering: actual tables, complete downloads and crawlable directories verified');
 

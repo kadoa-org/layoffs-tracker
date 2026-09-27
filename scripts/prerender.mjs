@@ -339,8 +339,6 @@ const SQL = await initSqlJs();
 const renderDb = new SQL.Database(fs.readFileSync(path.join(DATA, "layoffs.db")));
 const overview = loadJson("overview.json");
 const directory = readCompanyDirectory(renderDb);
-overview.topCompanies = directory.slice(0, 60);
-overview.states = loadJson("states.json").map(state => state.state);
 function injectPage(html, routePath) {
   const pathname = PREFIX + routePath;
   const route = parseRoute(pathname, "");

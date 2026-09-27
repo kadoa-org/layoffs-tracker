@@ -147,15 +147,6 @@ export default function OverviewPage({ pendingContent, initialData }) {
           <SectorChart sectors={sectors} classified={sectorsClassified} />
         </section>
       )}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-12">
-        <details><summary>Browse layoffs by state</summary>
-          <ul>{(data.states ?? Object.keys(stateStats)).sort().map(state => <li key={state}><Link to={`/state/${state}`}>{state}</Link></li>)}</ul>
-        </details>
-        {data.topCompanies && <details><summary>Browse major employers</summary>
-          <ul>{data.topCompanies.map(company => <li key={company.slug}><Link to={`/company/${company.slug}`}>{company.name}</Link></li>)}</ul>
-        </details>}
-        <p><Link to="/companies">Browse all companies</Link></p>
-      </section>
     </>
   );
 }

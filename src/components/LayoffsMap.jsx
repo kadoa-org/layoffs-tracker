@@ -2,7 +2,7 @@ import { geoAlbersUsa, geoPath } from "d3-geo";
 import React, { useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import statesTopo from "us-atlas/states-10m.json";
-import { ChartCard, DataTable } from "../kit";
+import { ChartCard, DataTable, ShowMore } from "../kit";
 import { useNavigate } from "../router";
 import { STATE_NAMES } from "../states";
 import { fmtDate, fmtInt, Link } from "../ui";
@@ -243,18 +243,20 @@ export default function LayoffsMap({ stateStats, window: win }) {
       tabs={[
         { label: "Chart", content: chart },
         {
-          label: "Tabular data", short: "Tabular", scroll: true,
+          label: "Tabular data", short: "Tabular",
           content: (
+            <ShowMore total={rows.length} initial={15} noun="states">{(n) => (
             <DataTable
               plain
               rowKey={(r) => r.code}
-              rows={rows}
+              rows={rows.slice(0, n)}
               columns={[
                 { key: "code", header: "State", render: (r) => <Link to={`/state/${r.code}`}>{STATE_NAMES[r.code] ?? r.code}</Link> },
                 { key: "workers12mo", header: "Workers", align: "right", render: (r) => fmtInt(r.workers12mo) },
                 { key: "notices12mo", header: "Notices", align: "right", render: (r) => fmtInt(r.notices12mo) },
               ]}
             />
+            )}</ShowMore>
           ),
         },
       ]}

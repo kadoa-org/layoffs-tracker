@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { ChartCard, DataTable, FilterSelect } from "../kit";
+import { ChartCard, DataTable, FilterSelect, ShowMore } from "../kit";
 import { fmtCompact, fmtDate, fmtInt } from "../ui";
 
 // Time-series chart of workers affected. SVG, no chart lib.
@@ -312,18 +312,20 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
       tabs={[
         { label: "Chart", content: chart },
         {
-          label: "Tabular data", short: "Tabular", scroll: true,
+          label: "Tabular data", short: "Tabular",
           content: (
+            <ShowMore total={rows.length} initial={24} step={60} noun="months">{(n) => (
             <DataTable
               plain
               rowKey={(r) => r.key}
-              rows={rows}
+              rows={rows.slice(0, n)}
               columns={[
                 { key: "key", header: cfg.granularity === "year" ? "Year" : "Month", render: (r) => bucketLabel(r.key, cfg.granularity) },
                 { key: "workers", header: "Workers", align: "right", render: (r) => fmtInt(r.workers) },
                 { key: "notices", header: "Notices", align: "right", render: (r) => fmtInt(r.notices) },
               ]}
             />
+            )}</ShowMore>
           ),
         },
       ]}

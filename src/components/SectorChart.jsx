@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChartCard, DataTable, FilterSelect } from "../kit";
+import { ChartCard, DataTable, FilterSelect, ShowMore } from "../kit";
 import { fmtCompact, fmtInt } from "../ui";
 
 // Horizontal bar chart of layoffs by NAICS sector. Coverage is partial (only
@@ -40,18 +40,20 @@ export default function SectorChart({ sectors, classified }) {
       tabs={[
         { label: "Chart", content: chart },
         {
-          label: "Tabular data", short: "Tabular", scroll: true,
+          label: "Tabular data", short: "Tabular",
           content: (
+            <ShowMore total={rows.length} initial={15} noun="sectors">{(n) => (
             <DataTable
               plain
               rowKey={(r) => r.sector}
-              rows={rows}
+              rows={rows.slice(0, n)}
               columns={[
                 { key: "sector", header: "Sector" },
                 { key: "workers", header: "Workers", align: "right", render: (r) => fmtInt(r.workers) },
                 { key: "notices", header: "Notices", align: "right", render: (r) => fmtInt(r.notices) },
               ]}
             />
+            )}</ShowMore>
           ),
         },
       ]}

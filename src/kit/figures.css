@@ -52,7 +52,7 @@
 /* As the UKHSA chart cards: every panel keeps a minimum height, and a long table scrolls inside a fixed height
    rather than lengthening the page, so switching from a chart to a table does not move what is below. */
 .dk-tabs__panel { background: #fff; border: 1px solid var(--dk-gov-border); padding: 24px 16px; min-height: var(--dk-tab-min-height, 440px); box-sizing: border-box; }
-.dk-tabs__panel--scroll { max-height: var(--dk-tab-scroll-height, 640px); overflow-y: auto; }
+.dk-show-more { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; padding-top: 15px; }
 .dk-tabs__short { display: none; }
 
 .dk-filter { margin: 0 0 20px; }

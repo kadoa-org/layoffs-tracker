@@ -110,7 +110,7 @@ export function Tabs({ tabs, initial = 0 }) {
         ))}
       </ul>
       {tabs.map((t, i) => (
-        <div key={t.label} ref={(el) => { panels.current[i] = el; }} style={lockHeight && i !== initial ? { minHeight: lockHeight, ...(t.scroll ? { maxHeight: lockHeight } : {}) } : undefined} className={`dk-tabs__panel${t.scroll ? " dk-tabs__panel--scroll" : ""}`} role="tabpanel" id={`${id}-panel-${i}`} aria-labelledby={`${id}-tab-${i}`} hidden={i !== active}>
+        <div key={t.label} ref={(el) => { panels.current[i] = el; }} style={lockHeight && i !== initial ? { minHeight: lockHeight } : undefined} className="dk-tabs__panel" role="tabpanel" id={`${id}-panel-${i}`} aria-labelledby={`${id}-tab-${i}`} hidden={i !== active}>
           {t.content}
         </div>
       ))}
@@ -139,5 +139,26 @@ export function FilterSelect({ label = "Filter data by", value, options, onChang
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
     </div>
+  );
+}
+
+// A long table shows its first rows and a button for the rest, so no panel ever scrolls inside the page (GOV.UK
+// advises against scroll areas in the page). `children(count)` renders the first `count` rows. A plain dk-btn, not
+// Button, because index.jsx imports this file.
+export function ShowMore({ total, initial, step, noun, children }) {
+  const [count, setCount] = useState(initial);
+  const shown = Math.min(count, total);
+  return (
+    <>
+      {children(shown)}
+      {total > initial && (
+        <div className="dk-show-more">
+          {shown < total
+            ? <button type="button" className="dk-btn" onClick={() => setCount(step ? shown + step : total)}>{step ? "Show more" : `Show all ${total} ${noun}`}</button>
+            : <button type="button" className="dk-btn" onClick={() => setCount(initial)}>Show fewer</button>}
+          <span className="dk-hint">Showing {shown} of {total}</span>
+        </div>
+      )}
+    </>
   );
 }

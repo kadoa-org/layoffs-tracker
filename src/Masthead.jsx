@@ -69,7 +69,7 @@ export default function Masthead({ route }) {
           </span>
         }
       />
-      <NavBar
+      <NavBar collapse
         LinkComponent={Link}
         items={TABS.map((t) => ({ href: t.to, label: t.label, active: activeTab === t.match }))}
       />

@@ -260,7 +260,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
           ),
         },
       ]}
-      footer={<Link to="/about">Coverage and history vary by state</Link>}
+      footer={<Link to="/about#coverage">Coverage and history vary by state</Link>}
     />
   );
 }

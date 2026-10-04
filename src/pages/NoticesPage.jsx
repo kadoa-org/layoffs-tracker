@@ -161,7 +161,7 @@ export default function NoticesPage({ db, initialData, error }) {
   };
 
   return (
-    <fieldset disabled={!db} className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16 w-full" style={{ border: 0, minWidth: 0 }}>
+    <fieldset disabled={!db} className="dk-container pt-8 pb-16 w-full" style={{ border: 0, minWidth: 0 }}>
       {!db && <p role={error ? "alert" : "status"}>{error ? "Could not load filtering and downloads. Reload to try again." : "Loading filters and downloads…"}</p>}
       <div className="dk-section-head">
         <div style={{ minWidth: 0 }}>

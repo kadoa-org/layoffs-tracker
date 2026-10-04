@@ -62,7 +62,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
 
   return (
     <>
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-2">
+      <section className="dk-container pt-8 sm:pt-10 pb-2">
         <div className="max-w-3xl">
           <h1 className="dk-h1">US Layoffs Tracker</h1>
           <p className="text-regular text-ink_muted">
@@ -74,7 +74,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       {/* Headline figures: one period for the whole row, named in the heading. The change compares like with like,
           only states that already reported a year earlier, so a newly added state never reads as a rise. */}
       {h && (
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6">
+        <section className="dk-container pt-6">
           <KeyFigures
             context={`Workers named in WARN notices, up to ${asOf}. Changes compare the ${h.comparableStates} states reporting in both years.`}
             items={[
@@ -99,17 +99,17 @@ export default function OverviewPage({ pendingContent, initialData }) {
         </section>
       )}
 
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6">
+      <section className="dk-container">
         <MapLoader stateStats={stateStats} window={mapWindow} />
       </section>
 
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6">
+      <section className="dk-container">
         <MonthlyTimeline timeline={timeline} asOf={stats.generatedAt} />
       </section>
 
       {/* Latest filings sits below the map + timeline so the visual story
           (where + when) lands first, and the interactive table follows. */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+      <section className="dk-container pb-14">
         <SectionHeader
           title="Latest filings"
           subtitle="The newest WARN notices, by the date they were filed."
@@ -129,7 +129,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
         />
       </section>
 
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-14">
+      <section className="dk-container pb-14">
         <SectionHeader
           title="Biggest layoffs"
           subtitle="The largest single notices by workers affected."
@@ -143,7 +143,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       </section>
 
       {sectors && sectors.length > 0 && (
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-6">
+        <section className="dk-container pb-6">
           <SectorChart sectors={sectors} classified={sectorsClassified} />
         </section>
       )}

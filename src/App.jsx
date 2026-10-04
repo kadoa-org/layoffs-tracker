@@ -20,8 +20,8 @@ const ROUTES_NEEDING_DB = new Set(["notices", "companies", "states", "company", 
 function LoadingScreen() {
   return (
     <div className="min-h-screen bg-canvas" aria-busy="true">
-      <p role="status" className="max-w-[1440px] mx-auto px-4 pt-8">Loading layoff data…</p>
-      <div aria-hidden="true" className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8">
+      <p role="status" className="dk-container pt-8">Loading layoff data…</p>
+      <div aria-hidden="true" className="dk-container pt-8">
         <div className="h-4 w-40 bg-muted rounded mb-4" />
         <div className="h-10 w-3/4 bg-muted rounded mb-3" />
         <div className="h-4 w-2/3 bg-muted rounded mb-8" />
@@ -54,7 +54,7 @@ export default function App({ initialPage = null }) {
   const { db, error } = useDatabase(needsDb && (!initialData || route.name === "notices"));
   const data = useMemo(() => initialData ?? (db ? readPageData(db, route) : null), [initialData, db, route]);
   const pendingContent = (loadError) => loadError
-    ? <p role="alert" className="max-w-[1440px] mx-auto px-4 py-8">Could not load the dataset: {String(loadError.message ?? loadError)}</p>
+    ? <p role="alert" className="dk-container py-8">Could not load the dataset: {String(loadError.message ?? loadError)}</p>
     : <LoadingScreen />;
 
   useEffect(() => { window.scrollTo(0, 0); }, [route.name, route.slug, route.code, route.page]);

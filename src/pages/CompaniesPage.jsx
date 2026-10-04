@@ -54,13 +54,13 @@ export default function CompaniesPage({ db, page, filters = {}, initialRows }) {
       : `Layoffs by Company - Page ${page} of ${pageCount} | US Layoffs Tracker`;
   }, [page, pageCount, validPage]);
 
-  if (!validPage) return <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+  if (!validPage) return <div className="dk-container pt-8 pb-16">
     <h1 className="dk-h1">Company page unavailable</h1>
     <p>This directory has {pageCount} pages. <Link to={pathFor(1)}>Browse companies</Link></p>
   </div>;
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+    <div className="dk-container pt-8 pb-16">
       <header className="dk-section-head">
         <div>
           <h1 className="dk-h1">{page === 1 ? "Layoffs by company" : `Layoffs by company, page ${page}`}</h1>

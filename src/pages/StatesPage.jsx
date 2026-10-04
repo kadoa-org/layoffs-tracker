@@ -35,7 +35,7 @@ export default function StatesPage({ db, initialRows }) {
   }, [db, sort, initialRows]);
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+    <div className="dk-container pt-8 pb-16">
       <header className="dk-section-head"><div><h1 className="dk-h1">States</h1><p className="dk-hint">{fmtInt(rows.length)} states</p></div></header>
       <Card className="overflow-hidden">
         <div className={`${COLS} ${TABLE_HEADER_CLS} h-9 items-center border-b border-stroke`}>

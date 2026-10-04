@@ -39,7 +39,7 @@ export default function StatePage({ code, db, initialData }) {
 
   if (!meta) {
     return (
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+      <div className="dk-container pt-8 pb-16">
         <p className="text-small text-ink_muted">
           No notices found for state <code className="font-mono text-mini bg-muted px-1 rounded">{code}</code>.{" "}
           <Link to="/states">Back to states</Link>
@@ -49,7 +49,7 @@ export default function StatePage({ code, db, initialData }) {
   }
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+    <div className="dk-container pt-8 pb-16">
       <div className="mb-8">
         <p className="text-mini text-ink_muted mb-2">
           <Link to="/states" className="no-underline hover:underline">

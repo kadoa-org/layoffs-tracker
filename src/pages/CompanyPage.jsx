@@ -46,7 +46,7 @@ export default function CompanyPage({ slug, db, initialRows }) {
 
   if (filtered.length === 0) {
     return (
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+      <div className="dk-container pt-8 pb-16">
         <p className="text-small text-ink_muted">
           No notices found for slug <code className="font-mono text-mini bg-muted px-1 rounded">{slug}</code>.{" "}
           <Link to="/companies">Back to companies</Link>
@@ -59,7 +59,7 @@ export default function CompanyPage({ slug, db, initialRows }) {
   const sorted = [...filtered].sort((a, b) => (b.received_date ?? "").localeCompare(a.received_date ?? ""));
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+    <div className="dk-container pt-8 pb-16">
       <div className="mb-8">
         <p className="text-mini text-ink_muted mb-2">
           <Link to="/companies" className="no-underline hover:underline">

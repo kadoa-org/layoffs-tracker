@@ -9,7 +9,7 @@ export default function AboutPage() {
   return (
     <div className="dk-container">
       <KitAboutPage
-        lede="Every US layoff notice filed under the federal WARN Act, collected from state labor departments into one table. Free to search, download and reuse."
+        lede="Every US layoff notice filed under the federal WARN Act, collected from state labor departments into one table."
         sources={[
           { name: "State labor departments", href: withBase("/states"), what: "WARN notices from each state's official list" },
           { name: "Big Local News warn-scraper", href: "https://github.com/biglocalnews/warn-scraper", what: "Older notices for some states" },

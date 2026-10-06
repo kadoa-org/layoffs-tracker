@@ -9,6 +9,7 @@ export default function AboutPage() {
   return (
     <div className="dk-container">
       <KitAboutPage
+        dataset="layoffs"
         lede="Every US layoff notice filed under the federal WARN Act, collected from state labor departments into one table."
         sources={[
           { name: "State labor departments", href: withBase("/states"), what: "WARN notices from each state's official list" },

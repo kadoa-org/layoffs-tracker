@@ -25,7 +25,7 @@ export const METHODS = [
     body: [
       "Workers is the headcount in the notice. The final number can differ. Charts count a notice in the month the state received it, or by the layoff date when that is all a state gives.",
       "Each notice is labeled a closure, mass layoff, relocation or amendment from the state's wording. Exact duplicates are removed, but an amendment counts as its own notice.",
-      "Sectors come from the industry on the notice, mapped to NAICS sectors. Notices without an industry are left out of the sector chart.",
+      "Sectors come from the industry on the notice, mapped to NAICS sectors. Not every state reports an industry, and notices without one are left out of the sector chart.",
     ],
   },
 ];

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChartCard, DataTable, FilterSelect, ShowMore } from "../kit";
-import { fmtCompact, fmtInt } from "../ui";
+import { fmtCompact, fmtInt, WarnSource } from "../ui";
 
 // Horizontal bar chart of layoffs by NAICS sector. Coverage is partial (only
 // notices that carry an industry), so the header states that plainly.
@@ -36,7 +36,7 @@ export default function SectorChart({ sectors, classified }) {
     <ChartCard
       id="sector-title"
       title="Layoffs by sector, all years"
-      description={`Among ${fmtInt(classified)} notices that report an industry. Not every state does.`}
+      description={`Among ${fmtInt(classified)} notices that report an industry.`}
       tabs={[
         { label: "Chart", content: chart },
         {
@@ -57,6 +57,7 @@ export default function SectorChart({ sectors, classified }) {
           ),
         },
       ]}
+      footer={<WarnSource naics />}
     />
   );
 }

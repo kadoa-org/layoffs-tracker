@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { ChartCard, DataTable, FilterSelect, ShowMore } from "../kit";
-import { fmtCompact, fmtDate, fmtInt } from "../ui";
+import { fmtCompact, fmtDate, fmtInt, WarnSource } from "../ui";
 
 // Time-series chart of workers affected. SVG, no chart lib.
 //
@@ -329,6 +329,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
           ),
         },
       ]}
+      footer={<WarnSource />}
     />
   );
 }

@@ -5,7 +5,7 @@ import statesTopo from "us-atlas/states-10m.json";
 import { ChartCard, DataTable, ShowMore } from "../kit";
 import { useNavigate } from "../router";
 import { STATE_NAMES } from "../states";
-import { fmtDate, fmtInt, Link } from "../ui";
+import { fmtDate, fmtInt, Link, WarnSource } from "../ui";
 
 // Proportional-symbol map of WARN layoffs by state. Bubbles are area-scaled to
 // workers affected in the trailing 12 months. Three coverage states are shown:
@@ -135,6 +135,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
 
   const chart = (
     <div ref={onResize}>
+      <p className="text-mini text-ink_muted mb-2">Circle size shows workers affected. Hatched states do not publish WARN notices.</p>
       <div className="mb-2 sm:mb-3">
         {/* Single-line, never wraps — a fixed line that doesn't push into the map. */}
         <div className="text-small text-ink_muted truncate">
@@ -226,8 +227,6 @@ export default function LayoffsMap({ stateStats, window: win }) {
             ) : null,
           )}
       </svg>
-
-      <p className="text-mini text-ink_muted mt-2">Circle size shows workers affected. Hatched states do not publish WARN notices.</p>
     </div>
   );
   const rows = Object.entries(stateStats)
@@ -260,7 +259,7 @@ export default function LayoffsMap({ stateStats, window: win }) {
           ),
         },
       ]}
-      footer={<Link to="/about#coverage">Coverage and history vary by state</Link>}
+      footer={<WarnSource />}
     />
   );
 }

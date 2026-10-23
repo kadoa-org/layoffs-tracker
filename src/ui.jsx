@@ -162,6 +162,16 @@ export function statePill(state) {
   return { tone: "neutral", label: state };
 }
 
+// The one-line source under every chart card. Coverage and method live on the About page.
+export function WarnSource({ naics = false }) {
+  return (
+    <>
+      Source: WARN notices from <Link to="/states">state labor departments</Link>
+      {naics && <>, sectors from <Link href="https://www.census.gov/naics/">NAICS</Link></>}.
+    </>
+  );
+}
+
 export function Link({ to, href, className = "", children, onClick, ...rest }) {
   const navigate = useNavigate();
   const destination = to ?? href;

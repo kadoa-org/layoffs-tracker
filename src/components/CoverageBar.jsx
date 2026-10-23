@@ -68,7 +68,7 @@ export default function CoverageBar({ states = [] }) {
 
   return (
     <div className="border border-[#b1b4b6]  bg-panel px-4 py-2.5 flex items-center gap-4 flex-wrap">
-      <span className="text-mini text-ink_muted whitespace-nowrap">
+      <span className="text-body-s text-ink_muted whitespace-nowrap">
         Coverage{" "}
         <span className="text-ink font-medium tabular-nums">
           {liveCount}/{ALL_JURISDICTIONS.length}

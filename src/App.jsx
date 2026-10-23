@@ -19,7 +19,7 @@ const ROUTES_NEEDING_DB = new Set(["notices", "companies", "states", "company", 
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-canvas" aria-busy="true">
+    <div className="min-h-screen bg-white" aria-busy="true">
       <p role="status" className="dk-container pt-8">Loading layoff data…</p>
       <div aria-hidden="true" className="dk-container pt-8">
         <div className="h-4 w-40 bg-muted rounded mb-4" />
@@ -65,7 +65,7 @@ export default function App({ initialPage = null }) {
 
   return (
     <NavigationContext value={navigate}>
-      <div className="min-h-screen bg-canvas text-ink">
+      <div className="min-h-screen bg-white text-ink">
         <Masthead route={route} />
         {needsDb && !data ? pendingContent(error) : <>
           {route.name === "overview" && <OverviewPage initialData={initialData} pendingContent={pendingContent} />}

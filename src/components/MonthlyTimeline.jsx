@@ -119,7 +119,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
     if (w && Math.abs(w - width) > 4) setWidth(w);
   };
 
-  if (series.length === 0) return <p className="text-mini text-ink_muted">No timeline data yet.</p>;
+  if (series.length === 0) return <p className="text-body-s text-ink_muted">No timeline data yet.</p>;
 
   const innerW = Math.max(200, width - PAD_L - PAD_R);
   const innerH = height - PAD_T - PAD_B;
@@ -148,7 +148,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
   const chart = (
     <div ref={containerRef}>
       <FilterSelect value={range} options={RANGES.map(({ value, label }) => [value, label])} onChange={setRange} />
-      <p className="text-small text-ink_muted tabular-nums mb-2 truncate">
+      <p className="text-body-s text-ink_muted tabular-nums mb-2 truncate">
         <span className="text-ink font-medium">{bucketLabel(focused.key, cfg.granularity)}</span>: {fmtInt(focused.workers)} workers, {fmtInt(focused.notices)} {focused.notices === 1 ? "notice" : "notices"}
       </p>
       <svg
@@ -180,7 +180,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
                 x={PAD_L - 8}
                 y={y + 3}
                 textAnchor="end"
-                fontSize="12"
+                fontSize="14"
                 fill="lch(50% 0 282)"
                 className="tabular-nums"
               >
@@ -220,7 +220,7 @@ export default function MonthlyTimeline({ timeline, height = HEIGHT, asOf }) {
                 x={x}
                 y={PAD_T + innerH + 16}
                 textAnchor="middle"
-                fontSize="12"
+                fontSize="14"
                 fill="lch(45% 0 282)"
                 className="tabular-nums"
               >

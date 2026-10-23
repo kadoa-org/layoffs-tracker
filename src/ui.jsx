@@ -4,7 +4,7 @@ import { SectionHeading, Stat, StatGrid as KitStatGrid } from "./kit";
 import { Tag as DkTag } from "./kit";
 import { useNavigate, withBase } from "./router";
 
-export const TABLE_HEADER_CLS = "text-mini font-medium text-ink_muted";
+export const TABLE_HEADER_CLS = "text-body-s font-bold text-ink_muted";
 export const TABLE_ZEBRA_CLS = "[&>*:nth-child(even)]:bg-muted/30";
 
 // Sort state is a column key, prefixed with "-" for descending. Right-aligned
@@ -204,7 +204,7 @@ export function SectionHeader({ title, subtitle, date, right }) {
 }
 
 export function PropertyLabel({ children, className = "" }) {
-  return <div className={`text-mini text-ink_muted ${className}`}>{children}</div>;
+  return <div className={`text-body-s text-ink_muted ${className}`}>{children}</div>;
 }
 
 // Responsive stat grid: 2-up on mobile, 4-up on desktop, with clean dividers on
@@ -215,7 +215,7 @@ export function StatGrid({ items }) {
 }
 
 export function Segmented({ value, onChange, options, size = "default" }) {
-  const sz = size === "sm" ? "h-[26px] text-mini" : "h-[32px] text-[15px]";
+  const sz = size === "sm" ? "h-[32px] text-body-s" : "h-[36px] text-body-s";
   return (
     <div className={`inline-flex items-center border border-[#0b0c0c] bg-white overflow-hidden ${sz}`}>
       {options.map((o, i) => {

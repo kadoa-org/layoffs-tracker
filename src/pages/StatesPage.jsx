@@ -4,7 +4,7 @@ import { query } from "../useDatabase";
 
 // Mobile: # / State(+agency subtitle) / Notices / Workers — 4 columns.
 // Desktop: adds Agency and Coverage as their own columns.
-const COLS = "grid gap-3 px-4 grid-cols-[28px_1fr_64px_76px] sm:grid-cols-[40px_56px_1fr_90px_90px_120px]";
+const COLS = "grid gap-3 px-4 grid-cols-[28px_1fr_76px_80px] sm:grid-cols-[40px_56px_1fr_90px_90px_120px]";
 
 const SORT_MAP = {
   state: "state ASC",
@@ -35,8 +35,8 @@ export default function StatesPage({ db, initialRows }) {
   }, [db, sort, initialRows]);
 
   return (
-    <div className="dk-container pt-8 pb-16">
-      <header className="dk-section-head"><div><h1 className="dk-h1">States</h1><p className="dk-hint">{fmtInt(rows.length)} states</p></div></header>
+    <div className="dk-container page">
+      <header className="dk-section-head page-intro"><div><h1 className="dk-h1">States</h1><p className="dk-hint">{fmtInt(rows.length)} states</p></div></header>
       <Card className="overflow-hidden">
         <div className={`${COLS} ${TABLE_HEADER_CLS} h-9 items-center border-b border-stroke`}>
           <span className="text-right">#</span>
@@ -50,17 +50,17 @@ export default function StatesPage({ db, initialRows }) {
             <SortHeader label="Coverage" sortKey="coverage" sort={sort} setSort={setSort} align="right" />
           </span>
         </div>
-        <div className={`text-small ${TABLE_ZEBRA_CLS}`}>
+        <div className={`text-body-s ${TABLE_ZEBRA_CLS}`}>
           {rows.map((s, i) => (
             <Link
               key={s.state}
               to={`/state/${s.state}`}
-              className={`${COLS} h-11 sm:h-10 items-center hover:bg-hover border-b border-stroke_soft last:border-b-0 no-underline hover:no-underline text-ink`}
+              className={`${COLS} min-h-[44px] py-[8px] items-center hover:bg-hover border-b border-stroke_soft last:border-b-0 no-underline hover:no-underline text-ink`}
             >
-              <span className="text-right text-mini text-ink_faint tabular-nums">{i + 1}</span>
+              <span className="text-right text-body-s text-ink_faint tabular-nums">{i + 1}</span>
               <span className="font-medium min-w-0">
                 {s.state}
-                <span className="sm:hidden block text-mini text-ink_faint font-normal truncate">{s.agency ?? ""}</span>
+                <span className="sm:hidden block text-body-s text-ink_faint font-normal">{s.agency ?? ""}</span>
               </span>
               <span className="hidden sm:block truncate text-ink_muted">{s.agency ?? "--"}</span>
               <span className="text-right tabular-nums">{fmtInt(s.notices)}</span>

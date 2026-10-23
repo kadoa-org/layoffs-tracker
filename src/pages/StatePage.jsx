@@ -39,9 +39,9 @@ export default function StatePage({ code, db, initialData }) {
 
   if (!meta) {
     return (
-      <div className="dk-container pt-8 pb-16">
-        <p className="text-small text-ink_muted">
-          No notices found for state <code className="font-mono text-mini bg-muted px-1 rounded">{code}</code>.{" "}
+      <div className="dk-container page">
+        <p className="text-body-s text-ink_muted">
+          No notices found for state <code className="font-mono text-body-s bg-muted px-1 rounded">{code}</code>.{" "}
           <Link to="/states">Back to states</Link>
         </p>
       </div>
@@ -49,18 +49,18 @@ export default function StatePage({ code, db, initialData }) {
   }
 
   return (
-    <div className="dk-container pt-8 pb-16">
-      <div className="mb-8">
-        <p className="text-mini text-ink_muted mb-2">
+    <div className="dk-container page">
+      <div className="page-intro">
+        <p className="text-body-s text-ink_muted mb-2">
           <Link to="/states" className="no-underline hover:underline">
             States
           </Link>{" "}
           /
         </p>
         <h1 className="dk-h1" style={{ marginBottom: 2 }}>{code}</h1>
-        {meta?.agency && <p className="text-small text-ink_muted mt-1">{meta.agency}</p>}
+        {meta?.agency && <p className="text-body-s text-ink_muted mt-1">{meta.agency}</p>}
       </div>
-      <Card className="mb-8 overflow-hidden">
+      <Card className="mb-[50px] overflow-hidden">
         <StatGrid
           items={[
             { label: "Notices filed", value: fmtInt(meta.notices) },

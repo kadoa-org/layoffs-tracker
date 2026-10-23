@@ -21,7 +21,7 @@ export default function Leaderboard({ topLayoffs, totals, limit = 10, asOf }) {
   return (
     <Card className="overflow-hidden">
       <div className="px-4 py-3 border-b border-stroke flex items-center justify-between gap-3 flex-wrap">
-        <div className="text-mini text-ink_muted">
+        <div className="text-body-s text-ink_muted">
           <span className="text-ink font-medium">{rangeLabel}</span>
           <span className="mx-1">·</span>
           {fmtInt(totalWorkers)} workers

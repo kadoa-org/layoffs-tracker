@@ -61,11 +61,11 @@ export default function OverviewPage({ pendingContent, initialData }) {
   const asOf = fmtDate(stats.generatedAt.slice(0, 10));
 
   return (
-    <>
-      <section className="dk-container pt-8 sm:pt-10 pb-2">
-        <div className="max-w-3xl">
+    <div className="page">
+      <section className="dk-container page-intro">
+        <div className="page-lede">
           <h1 className="dk-h1">US Layoffs Tracker</h1>
-          <p className="text-regular text-ink_muted">
+          <p className="text-body text-ink_muted">
             Every US layoff disclosed under the WARN Act: {fmtInt(stats.totalNotices)} notices from state labor departments since {stats.earliestYear}, updated daily.
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       {/* Headline figures: one period for the whole row, named in the heading. The change compares like with like,
           only states that already reported a year earlier, so a newly added state never reads as a rise. */}
       {h && (
-        <section className="dk-container pt-6">
+        <section className="dk-container figures-2up">
           <KeyFigures
             context={`Workers named in WARN notices, up to ${asOf}. Changes compare the ${h.comparableStates} states reporting in both years.`}
             items={[
@@ -109,12 +109,12 @@ export default function OverviewPage({ pendingContent, initialData }) {
 
       {/* Latest filings sits below the map + timeline so the visual story
           (where + when) lands first, and the interactive table follows. */}
-      <section className="dk-container pb-14">
+      <section className="dk-container page-section">
         <SectionHeader
           title="Latest filings"
           subtitle="The newest WARN notices, by the date they were filed."
           right={
-            <Link to="/notices" className="text-small no-underline hover:no-underline">
+            <Link to="/notices" className="text-body-s no-underline hover:no-underline">
               See all →
             </Link>
           }
@@ -129,12 +129,12 @@ export default function OverviewPage({ pendingContent, initialData }) {
         />
       </section>
 
-      <section className="dk-container pb-14">
+      <section className="dk-container page-section">
         <SectionHeader
           title="Biggest layoffs"
           subtitle="The largest single notices by workers affected."
           right={
-            <Link to="/notices" className="text-small no-underline hover:no-underline">
+            <Link to="/notices" className="text-body-s no-underline hover:no-underline">
               See all →
             </Link>
           }
@@ -143,10 +143,10 @@ export default function OverviewPage({ pendingContent, initialData }) {
       </section>
 
       {sectors && sectors.length > 0 && (
-        <section className="dk-container pb-6">
+        <section className="dk-container">
           <SectorChart sectors={sectors} classified={sectorsClassified} />
         </section>
       )}
-    </>
+    </div>
   );
 }

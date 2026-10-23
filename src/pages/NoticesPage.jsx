@@ -161,9 +161,9 @@ export default function NoticesPage({ db, initialData, error }) {
   };
 
   return (
-    <fieldset disabled={!db} className="dk-container pt-8 pb-16 w-full" style={{ border: 0, minWidth: 0 }}>
+    <fieldset disabled={!db} className="dk-container page w-full" style={{ border: 0, minWidth: 0 }}>
       {!db && <p role={error ? "alert" : "status"}>{error ? "Could not load filtering and downloads. Reload to try again." : "Loading filters and downloads…"}</p>}
-      <div className="dk-section-head">
+      <div className="dk-section-head page-intro">
         <div style={{ minWidth: 0 }}>
           <h1 className="dk-h1" style={{ marginBottom: 2 }}>All notices</h1>
           <p className="dk-hint">{`${fmtInt(showing)} of ${fmtInt(total)}`}</p>
@@ -175,7 +175,7 @@ export default function NoticesPage({ db, initialData, error }) {
       </div>
       <NoticesTable notices={rows.slice(0, DISPLAY_LIMIT)} sort={sort} setSort={setSort} limit={DISPLAY_LIMIT} />
       {hasMore && (
-        <p className="text-mini text-ink_muted mt-3">
+        <p className="text-body-s text-ink_muted mt-3">
           Showing first {DISPLAY_LIMIT}. Refine the filters to narrow further.
         </p>
       )}

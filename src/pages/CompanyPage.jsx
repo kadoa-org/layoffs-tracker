@@ -46,9 +46,9 @@ export default function CompanyPage({ slug, db, initialRows }) {
 
   if (filtered.length === 0) {
     return (
-      <div className="dk-container pt-8 pb-16">
-        <p className="text-small text-ink_muted">
-          No notices found for slug <code className="font-mono text-mini bg-muted px-1 rounded">{slug}</code>.{" "}
+      <div className="dk-container page">
+        <p className="text-body-s text-ink_muted">
+          No notices found for slug <code className="font-mono text-body-s bg-muted px-1 rounded">{slug}</code>.{" "}
           <Link to="/companies">Back to companies</Link>
         </p>
       </div>
@@ -59,9 +59,9 @@ export default function CompanyPage({ slug, db, initialRows }) {
   const sorted = [...filtered].sort((a, b) => (b.received_date ?? "").localeCompare(a.received_date ?? ""));
 
   return (
-    <div className="dk-container pt-8 pb-16">
-      <div className="mb-8">
-        <p className="text-mini text-ink_muted mb-2">
+    <div className="dk-container page">
+      <div className="page-intro">
+        <p className="text-body-s text-ink_muted mb-2">
           <Link to="/companies" className="no-underline hover:underline">
             Companies
           </Link>{" "}
@@ -71,7 +71,7 @@ export default function CompanyPage({ slug, db, initialRows }) {
           {name}
         </h1>
       </div>
-      <Card className="mb-8 overflow-hidden">
+      <Card className="mb-[50px] overflow-hidden">
         <StatGrid
           items={[
             { label: "Notices filed", value: fmtInt(filtered.length) },

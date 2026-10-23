@@ -158,17 +158,17 @@ export default function SearchPalette({ open, onClose }) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search companies, states, or jump to a view..."
-            className="flex-1 bg-transparent text-regular placeholder:text-ink_faint text-ink focus:outline-none"
+            className="flex-1 bg-transparent text-body placeholder:text-ink_faint text-ink focus:outline-none"
           />
-          <kbd className="px-1.5 py-0.5 rounded border border-[#b1b4b6] bg-muted font-mono text-mini text-ink_muted">
+          <kbd className="px-1.5 py-0.5 rounded border border-[#b1b4b6] bg-muted font-mono text-chart text-ink_muted">
             Esc
           </kbd>
         </div>
         <div ref={listRef} className="max-h-[52vh] overflow-auto py-1">
           {items.length === 0 && companies ? (
-            <div className="px-3 py-6 text-small text-ink_muted text-center">No matches</div>
+            <div className="px-3 py-6 text-body-s text-ink_muted text-center">No matches</div>
           ) : items.length === 0 && !companies ? (
-            <div className="px-3 py-6 text-small text-ink_muted text-center">Loading...</div>
+            <div className="px-3 py-6 text-body-s text-ink_muted text-center">Loading...</div>
           ) : (
             (() => {
               let lastType = null;
@@ -179,7 +179,7 @@ export default function SearchPalette({ open, onClose }) {
                 return (
                   <React.Fragment key={`${it.type}-${it.id}`}>
                     {showHeader && (
-                      <div className="px-3 pt-2 pb-1 text-mini font-medium text-ink_muted">{groupLabel}</div>
+                      <div className="px-3 pt-2 pb-1 text-body-s font-medium text-ink_muted">{groupLabel}</div>
                     )}
                     <button
                       data-idx={i}
@@ -188,17 +188,17 @@ export default function SearchPalette({ open, onClose }) {
                         onClose();
                         navigate(it.id);
                       }}
-                      className={`w-full flex items-center gap-3 px-3 py-[7px] text-small text-left ${
+                      className={`w-full flex items-center gap-3 px-3 py-[7px] text-body-s text-left ${
                         idx === i ? "bg-muted text-ink" : "text-ink_secondary hover:bg-muted/60"
                       }`}
                     >
-                      <span className="w-5 h-5 flex items-center justify-center rounded bg-muted text-mini text-ink_muted font-mono">
+                      <span className="w-5 h-5 flex items-center justify-center rounded bg-muted text-chart text-ink_muted font-mono">
                         {it.type === "company" ? "C" : it.type === "state" ? "S" : "→"}
                       </span>
                       <span className="flex-1 font-medium text-ink truncate">{it.label}</span>
-                      <span className="text-mini text-ink_muted truncate max-w-[180px]">{it.hint}</span>
+                      <span className="text-body-s text-ink_muted truncate max-w-[180px]">{it.hint}</span>
                       {it.right && (
-                        <span className="text-mini text-ink_muted tabular-nums min-w-[88px] text-right">
+                        <span className="text-body-s text-ink_muted tabular-nums min-w-[88px] text-right">
                           {it.right}
                         </span>
                       )}
@@ -209,7 +209,7 @@ export default function SearchPalette({ open, onClose }) {
             })()
           )}
         </div>
-        <div className="flex items-center gap-3 px-3 h-8 border-t border-[#b1b4b6] text-mini text-ink_muted">
+        <div className="flex items-center gap-3 px-3 h-8 border-t border-[#b1b4b6] text-body-s text-ink_muted">
           <span className="inline-flex items-center gap-1">
             <kbd className="px-1 rounded border border-[#b1b4b6] bg-muted font-mono">↑</kbd>
             <kbd className="px-1 rounded border border-[#b1b4b6] bg-muted font-mono">↓</kbd>

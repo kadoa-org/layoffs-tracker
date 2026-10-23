@@ -287,7 +287,7 @@ export default function FilterBar({ filters, setFilters, stateOptions }) {
       {anyApplied && (
         <button
           onClick={clearAll}
-          className="ml-auto h-7 px-2 text-small text-ink_muted hover:text-ink transition-colors"
+          className="ml-auto h-8 px-2 text-body-s text-ink_muted hover:text-ink transition-colors"
         >
           Clear
         </button>
@@ -324,7 +324,7 @@ function FilterChip({ cat, value, onChange, onRemove, open, setOpen }) {
   const btnRef = useRef(null);
 
   return (
-    <div className="relative inline-flex items-stretch border border-[#0b0c0c] bg-white overflow-hidden h-[32px] text-[15px]">
+    <div className="relative inline-flex items-stretch border border-[#0b0c0c] bg-white overflow-hidden h-[32px] text-body-s">
       <span className="inline-flex items-center gap-1.5 pl-2 pr-1.5 text-ink_muted border-r border-stroke">
         <span className="text-ink_muted">{cat.icon}</span>
         <span className="font-medium text-ink">{cat.label}</span>
@@ -396,7 +396,7 @@ function AddFilterButton({ categories, onAdd, open, setOpen }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Filter..."
-                className="w-full h-7 px-2 text-small bg-transparent border-none outline-none placeholder:text-ink_faint"
+                className="w-full h-8 px-2 text-body-s bg-transparent border-none outline-none placeholder:text-ink_faint"
               />
             </div>
             <div className="py-1 max-h-[300px] overflow-y-auto">
@@ -412,7 +412,7 @@ function AddFilterButton({ categories, onAdd, open, setOpen }) {
                   }}
                 />
               ))}
-              {filtered.length === 0 && <div className="px-3 py-2 text-small text-ink_muted">No filters match.</div>}
+              {filtered.length === 0 && <div className="px-3 py-2 text-body-s text-ink_muted">No filters match.</div>}
             </div>
           </div>
         </Popover>
@@ -440,7 +440,7 @@ function CategoryRow({ cat, active, onHover, onSelect }) {
     >
       <button
         onClick={() => setSubmenuOpen(true)}
-        className={`w-full flex items-center gap-2 px-3 py-1.5 text-small text-left hover:bg-muted/70 ${
+        className={`w-full flex items-center gap-2 px-3 py-1.5 text-body-s text-left hover:bg-muted/70 ${
           active ? "bg-muted/50" : ""
         }`}
       >
@@ -486,7 +486,7 @@ function ValuePicker({ cat, value, onPick }) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search..."
-            className="w-full h-7 px-2 text-small bg-transparent border-none outline-none placeholder:text-ink_faint"
+            className="w-full h-8 px-2 text-body-s bg-transparent border-none outline-none placeholder:text-ink_faint"
           />
         </div>
       )}
@@ -495,13 +495,13 @@ function ValuePicker({ cat, value, onPick }) {
           <button
             key={o.k}
             onClick={() => onPick(o.k)}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-small text-left text-ink hover:bg-muted/70"
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-body-s text-left text-ink hover:bg-muted/70"
           >
             <span className="w-3 text-accent">{value === o.k ? icon.check : null}</span>
             <span className="flex-1">{o.label}</span>
           </button>
         ))}
-        {filtered.length === 0 && <div className="px-3 py-2 text-small text-ink_muted">No matches.</div>}
+        {filtered.length === 0 && <div className="px-3 py-2 text-body-s text-ink_muted">No matches.</div>}
       </div>
     </div>
   );

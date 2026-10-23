@@ -135,10 +135,10 @@ export default function LayoffsMap({ stateStats, window: win }) {
 
   const chart = (
     <div ref={onResize}>
-      <p className="text-mini text-ink_muted mb-2">Circle size shows workers affected. Hatched states do not publish WARN notices.</p>
+      <p className="text-chart text-ink_muted mb-2">Circle size shows workers affected. Hatched states do not publish WARN notices.</p>
       <div className="mb-2 sm:mb-3">
         {/* Single-line, never wraps — a fixed line that doesn't push into the map. */}
-        <div className="text-small text-ink_muted truncate">
+        <div className="text-body-s text-ink_muted truncate">
           {focused && focused.code ? (
             focused.noData ? (
               <span>

@@ -11,7 +11,7 @@ import {
 import { COMPANIES_PER_PAGE, companiesPath, readCompanyDirectory } from "../companyDirectory";
 import { useNavigate } from "../router";
 
-const COLS = "grid gap-3 px-4 grid-cols-[30px_1fr_60px_70px] sm:grid-cols-[40px_1fr_90px_90px_120px]";
+const COLS = "grid gap-3 px-4 grid-cols-[1fr_76px_80px] sm:grid-cols-[52px_1fr_90px_90px_120px]";
 
 const SORT_KEYS = new Set(["name", "-name", "notices", "-notices", "workers", "-workers", "last_filed", "-last_filed"]);
 
@@ -54,14 +54,14 @@ export default function CompaniesPage({ db, page, filters = {}, initialRows }) {
       : `Layoffs by Company - Page ${page} of ${pageCount} | US Layoffs Tracker`;
   }, [page, pageCount, validPage]);
 
-  if (!validPage) return <div className="dk-container pt-8 pb-16">
+  if (!validPage) return <div className="dk-container page">
     <h1 className="dk-h1">Company page unavailable</h1>
     <p>This directory has {pageCount} pages. <Link to={pathFor(1)}>Browse companies</Link></p>
   </div>;
 
   return (
-    <div className="dk-container pt-8 pb-16">
-      <header className="dk-section-head">
+    <div className="dk-container page">
+      <header className="dk-section-head page-intro">
         <div>
           <h1 className="dk-h1">{page === 1 ? "Layoffs by company" : `Layoffs by company, page ${page}`}</h1>
           <p className="dk-hint">{total ? `${fmtInt(offset + 1)} to ${fmtInt(offset + rows.length)} of ${fmtInt(total)}` : "No companies found"}</p>
@@ -73,11 +73,11 @@ export default function CompaniesPage({ db, page, filters = {}, initialRows }) {
         onChange={(e) => navigate(pathFor(1, sort, e.target.value), { replace: true })}
         aria-label="Search companies"
         placeholder="Search companies..."
-        className="h-8 px-3 mb-4 text-small border border-stroke rounded-md bg-panel min-w-[260px] focus:outline-none focus:border-accent placeholder:text-ink_faint"
+        className="h-10 px-3 mb-4 text-body-s border border-stroke rounded-md bg-panel min-w-[260px] focus:outline-none focus:border-accent placeholder:text-ink_faint"
       />
       <Card className="overflow-hidden">
         <div className={`${COLS} ${TABLE_HEADER_CLS} h-9 items-center border-b border-stroke`}>
-          <span className="text-right">#</span>
+          <span className="hidden sm:block text-right">#</span>
           <SortHeader label="Company" sortKey="name" sort={sort} setSort={setSort} />
           <SortHeader label="Notices" sortKey="notices" sort={sort} setSort={setSort} align="right" />
           <SortHeader label="Workers" sortKey="workers" sort={sort} setSort={setSort} align="right" />
@@ -85,14 +85,14 @@ export default function CompaniesPage({ db, page, filters = {}, initialRows }) {
             <SortHeader label="Latest filing" sortKey="last_filed" sort={sort} setSort={setSort} align="right" />
           </span>
         </div>
-        <div className={`text-small ${TABLE_ZEBRA_CLS}`}>
+        <div className={`text-body-s ${TABLE_ZEBRA_CLS}`}>
           {rows.map((c, i) => (
             <Link
               key={c.slug}
               to={`/company/${c.slug}`}
               className={`${COLS} h-11 sm:h-10 items-center hover:bg-hover border-b border-stroke_soft last:border-b-0 no-underline hover:no-underline text-ink`}
             >
-              <span className="text-right text-mini text-ink_faint tabular-nums">{offset + i + 1}</span>
+              <span className="hidden sm:block text-right text-body-s text-ink_faint tabular-nums">{offset + i + 1}</span>
               <span className="truncate">{c.name}</span>
               <span className="text-right tabular-nums">{fmtInt(c.notices)}</span>
               <span className="text-right tabular-nums">{fmtCompact(c.workers)}</span>

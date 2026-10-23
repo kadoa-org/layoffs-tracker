@@ -4,6 +4,8 @@ Open dataset and dashboard of every US layoff disclosed under the WARN Act. ~42,
 
 **Live:** https://www.kadoa.com/layoffs
 
+[![Overview page: workers affected by WARN notices in the past 12 months, headline figures and layoffs by state](docs/screenshot.png)](https://www.kadoa.com/layoffs)
+
 ## Run locally
 
 ```bash

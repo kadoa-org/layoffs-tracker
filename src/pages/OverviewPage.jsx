@@ -65,7 +65,7 @@ export default function OverviewPage({ pendingContent, initialData }) {
       <section className="dk-container page-intro">
         <div className="page-lede">
           <h1 className="dk-h1">US Layoffs Tracker</h1>
-          <p className="text-body text-ink_muted">
+          <p>
             Every US layoff disclosed under the WARN Act: {fmtInt(stats.totalNotices)} notices from state labor departments since {stats.earliestYear}, updated daily.
           </p>
         </div>

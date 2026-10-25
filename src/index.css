@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .seo-shell { max-width: 960px; margin: 0 auto; padding: 40px 15px 60px; overflow-x: auto; }
-.seo-shell h1 { font-size: 36px; line-height: 1.12; font-weight: 700; margin-bottom: 20px; }
+.seo-shell h1 { font-size: 36px; line-height: 1.12; font-weight: 700; margin-bottom: 20px; max-width: var(--dk-text-column, 720px); text-wrap: balance; }
 .seo-shell h2 { font-size: 24px; line-height: 1.25; font-weight: 700; margin: 30px 0 20px; }
 .seo-shell p, .seo-shell ul, .seo-shell nav { margin-bottom: 16px; }
 .seo-shell a { color: #1d70b8; text-decoration: underline; }
@@ -46,7 +46,10 @@ body { font-size: 19px; line-height: 1.4; }
 .page { padding-top: 40px; padding-bottom: 60px; }
 .page-intro { margin-bottom: 40px; }
 .page-section { margin-bottom: 60px; }
-.page-lede { max-width: 640px; }
+/* The home page lede is the kit's lead paragraph (.dk-lede): 24px, 21px on phones, in the text colour, in the
+   heading's 720px column. */
+.page-lede { max-width: var(--dk-text-column, 720px); }
+.page-lede > p { font-size: 24px; line-height: 30px; color: var(--dk-ink, #0b0c0c); max-width: var(--dk-text-column, 720px); text-wrap: pretty; }
 /* Headline figures whose values are company and state names: two per row, so names and labels do not wrap in a 240px column. */
 .figures-2up .dk-figures__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .figures-2up .dk-figures__item:nth-child(odd) { border-left: 0; }
@@ -56,6 +59,7 @@ body { font-size: 19px; line-height: 1.4; }
 @media (max-width: 640px) {
   .page { padding-top: 25px; padding-bottom: 40px; }
   .page-section { margin-bottom: 40px; }
+  .page-lede > p { font-size: 21px; line-height: 25px; }
   /* A page title shares its row with a download button; on a phone the button drops below. */
   .page-intro.dk-section-head { flex-wrap: wrap; }
   .figures-2up .dk-figures__row { grid-template-columns: 1fr; }

@@ -34,7 +34,7 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       fontSize: {
-        // GOV.UK type scale in px, so sizes do not follow the 18px html root. chart is for chart-internal labels only.
+        // Type scale in px (16 and 19), so sizes do not follow the 18px html root. chart is for chart-internal labels only.
         chart: ["14px", { lineHeight: "1.3" }],
         "body-s": ["16px", { lineHeight: "1.4" }],
         body: ["19px", { lineHeight: "1.4" }],

@@ -21,7 +21,7 @@ const PAD_T = 14;
 const PAD_B = 28;
 const HEIGHT = 280;
 const MIN_BAR_W = 2;
-// The GOV.UK Analysis Function navy, shared with the other dataset sites' charts.
+// Dark navy bars, the same colour as the other dataset sites' charts.
 const BAR_COLOR = "#12436d";
 
 // ── Time-bucketing helpers ───────────────────────────────────────────────────

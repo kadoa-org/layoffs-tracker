@@ -32,7 +32,7 @@ html, body {
   font-feature-settings: "cv11", "ss01";
 }
 
-/* GOV.UK body size. The 18px html root above still drives Tailwind spacing. */
+/* Body text is 19px. The 18px html root above still drives Tailwind spacing. */
 body { font-size: 19px; line-height: 1.4; }
 
 @layer base {
